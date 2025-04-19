@@ -242,6 +242,9 @@ class BatteryTab(Gtk.Box):
         device_id = os.path.basename(device_path)
         expander.set_expanded(self.expanded_batteries.get(device_id, False))
 
+        # Set expander state to always have battery info expanded
+        expander.set_expanded(True)
+
         expander.set_margin_top(10)
         expander.set_margin_bottom(5)
         expander.set_margin_start(15)
