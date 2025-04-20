@@ -39,7 +39,7 @@ Before installing, ensure you have `git` and `base-devel` installed.
 | Feature               | Required Packages             |
 | --------------------- | ----------------------------- |
 | **Wi-Fi Management**  | NetworkManager, python-qrcode |
-| **Bluetooth**         | BlueZ & BlueZ Utils           |
+| **Bluetooth**         | BlueZ & BlueZ Utils, papirus-icon-theme           |
 | **Audio Control**     | PipeWire or PulseAudio        |
 | **Brightness**        | brightnessctl                 |
 | **Power Management**  | power-profiles-daemon, upower |
