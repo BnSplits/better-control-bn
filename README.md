@@ -51,6 +51,7 @@ Before installing, ensure you have `git` and `base-devel` installed.
 > If you don't need a specific feature, you can safely omit its corresponding dependency and hide its tab in the settings.
 
 </details>
+
 # 💾 Installation & Uninstallation
 
 #### ➡️ Method 1 : Manual Build
