@@ -238,5 +238,5 @@ expander {
 .wifi-list-item:selected,
 .wifi-list-item:selected:hover,
 .wifi-list-item:active {
-  background-color: alpha(@headerbar_border_color, 0.6);
+  background-color: alpha(@thumbnail_bg_color, 0.6);
 }

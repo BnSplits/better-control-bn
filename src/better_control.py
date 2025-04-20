@@ -20,7 +20,7 @@ from gi.repository import Gtk, GLib  # type: ignore
 from ui.main_window import BetterControl
 from utils.dependencies import check_all_dependencies
 from tools.bluetooth import restore_last_sink
-from ui.css.animations import load_animations_css
+from ui.css.styles import load_animations_css
 
 
 def signal_handler(sig, frame):

@@ -4,7 +4,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GLib #type: ignore
 
 def get_animations_css_path():
-    return os.path.join(os.path.dirname(__file__), "animations.css")
+    return os.path.join(os.path.dirname(__file__), "styles.css")
 
 def animate_widget_show(widget, duration=200):
     """Animate widget appearance using CSS transitions"""

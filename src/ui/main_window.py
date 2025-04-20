@@ -26,7 +26,7 @@ from ui.tabs.settings_tab import SettingsTab
 from ui.tabs.usbguard_tab import USBGuardTab
 from utils.settings import load_settings, save_settings
 from utils.logger import LogLevel, Logger
-from ui.css.animations import load_animations_css  # animate_widget_show not used
+from ui.css.styles import load_animations_css  # animate_widget_show not used
 from utils.translations import Translation, get_translations
 from tools.globals import check_hardware_support
 
