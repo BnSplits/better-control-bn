@@ -347,8 +347,8 @@ class BatteryTab(Gtk.Box):
             battery_info,
             [
                 "Charge",
-                "State",
                 "Charge Cycles",
+                "State",
                 "Capacity",
                 "Technology",
                 "Energy Rate",
@@ -543,13 +543,11 @@ class BatteryTab(Gtk.Box):
             # Title for batteries section
             batteries_title = Gtk.Label(xalign=0)
             batteries_title.set_markup(
+                # f"<span weight='bold' size='large'>{self.txt.battery_batteries}</span>"
                 "<span weight='bold' size='large'>Informations</span>"
             )
-            # batteries_title.set_markup(
-            #     f"<span weight='bold' size='large'>{self.txt.battery_batteries}</span>"
-            # )
             batteries_title.set_margin_top(5)
-            # batteries_title.set_margin_bottom(5)
+            batteries_title.set_margin_bottom(0)
             batteries_container.pack_start(batteries_title, False, False, 0)
 
             # Process each battery

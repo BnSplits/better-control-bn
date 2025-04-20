@@ -594,17 +594,46 @@ class WiFiTab(Gtk.Box):
         box.set_margin_top(10)
         box.set_margin_bottom(10)
 
-        #INFO: The spinner showing when loading networks
-        spinner = Gtk.Spinner()
-        spinner.start()
-        box.pack_start(spinner, False, False, 0)
+        # INFO: The spinner showing when loading networks
+        # spinner = Gtk.Spinner()
+        # spinner.start()
+        # box.pack_start(spinner, False, False, 0)
+        # loading_networks_text = getattr(
+        #     self.txt, "wifi_loading_networks", "Loading networks..."
+        # )
+        # label = Gtk.Label(label=loading_networks_text)
+        # label.set_halign(Gtk.Align.START)
+        # box.pack_start(label, True, True, 0)
 
-        loading_networks_text = getattr(
-            self.txt, "wifi_loading_networks", "Loading networks..."
-        )
-        label = Gtk.Label(label=loading_networks_text)
+        # In your class method where the label is created:
+        loading_networks_base = getattr(
+            self.txt, "wifi_loading_networks", "Loading networks"
+        ).rstrip(
+            "."
+        )  # Remove any existing dots
+        loading_networks_base = (
+            loading_networks_base or "Loading networks"
+        )  # Ensure we have a base
+
+        label = Gtk.Label(label=f"{loading_networks_base}.")
         label.set_halign(Gtk.Align.START)
         box.pack_start(label, True, True, 0)
+
+        # Animation state tracking
+        label.dot_count = 1  # Start with 1 dot
+
+        def update_loading_dots(label):
+            # Cycle through 1-3 dots
+            label.dot_count = (label.dot_count % 3) + 1
+            dots = "." * label.dot_count
+            label.set_text(f"{loading_networks_base}{dots}")
+            return True  # Continue animation
+
+        # Start animation (store timeout ID for potential cleanup)
+        label.timeout_id = GLib.timeout_add(500, update_loading_dots, label)
+
+        # Optional: Cleanup handler to stop animation when label is destroyed
+        label.connect("destroy", lambda w: GLib.source_remove(w.timeout_id))
 
         row.add(box)
         self.networks_box.add(row)
