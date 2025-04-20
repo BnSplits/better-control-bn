@@ -24,9 +24,7 @@
 
 <details>
 <summary><b>Dependencies</b></summary>
-
 <br><br>
-
 Before installing, ensure you have `git` and `base-devel` installed.
 
 ### Core Dependencies
