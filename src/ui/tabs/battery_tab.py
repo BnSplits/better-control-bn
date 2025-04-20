@@ -3,17 +3,18 @@
 import gi
 
 from utils.translations import English, Spanish  # type: ignore
-gi.require_version('Gtk', '3.0')
+
+gi.require_version("Gtk", "3.0")
 import subprocess
 import os
 import threading
 from datetime import datetime
-from gi.repository import Gtk, GLib,Gdk  # type: ignore
+from gi.repository import Gtk, GLib, Gdk  # type: ignore
 from utils.logger import LogLevel, Logger
 
 
 class BatteryTab(Gtk.Box):
-    def __init__(self, logging: Logger, txt: English|Spanish, parent=None):
+    def __init__(self, logging: Logger, txt: English | Spanish, parent=None):
         Gtk.Box.__init__(self, orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.txt = txt
         self.logging = logging
@@ -35,7 +36,7 @@ class BatteryTab(Gtk.Box):
             self.power_mode_dropdown.append_text(mode)
 
         # Get saved mode from settings
-        saved_mode = ''
+        saved_mode = ""
         try:
             # Get current power plan using powerprofilesctl
             result = subprocess.run(
@@ -79,16 +80,16 @@ class BatteryTab(Gtk.Box):
         self.pack_start(self.scroll_window, True, True, 0)
 
         self.power_mode_dropdown.connect("changed", self.set_power_mode)
-        
-        self.connect('key-press-event', self.on_key_press)
+
+        self.connect("key-press-event", self.on_key_press)
 
         self.refresh_battery_info()
         GLib.timeout_add_seconds(10, self.refresh_battery_info)
-        
+
     # keybinds for battery tab
     def on_key_press(self, widget, event):
         keyval = event.keyval
-        
+
         if keyval in (114, 82):
             self.logging.log(LogLevel.Info, "Refreshing battery info via keybind")
             self.refresh_battery_info()
@@ -132,6 +133,7 @@ class BatteryTab(Gtk.Box):
                     GLib.idle_add(update_ui)
 
                 except Exception as e:
+
                     def handle_error(e=e):  # Capture the exception in the closure
                         self.power_mode_dropdown.set_sensitive(True)
                         error_message = f"Failed to set power mode: {e}"
@@ -260,7 +262,9 @@ class BatteryTab(Gtk.Box):
         # Manufacturer info
         manufacturer = battery_info.get("Manufacturer", "Unknown")
         manufacturer_label = Gtk.Label(xalign=0)
-        manufacturer_label.set_markup(f"<span size='small'>Manufacturer: {manufacturer}</span>")
+        manufacturer_label.set_markup(
+            f"<span size='small'>Manufacturer: {manufacturer}</span>"
+        )
         content_box.pack_start(manufacturer_label, False, False, 0)
 
         # Battery detailed status
@@ -269,7 +273,9 @@ class BatteryTab(Gtk.Box):
 
         # Detailed percentage
         charge_label = Gtk.Label()
-        charge_label.set_markup(f"<span size='x-large'><b>{charge_percentage}%</b></span>")
+        charge_label.set_markup(
+            f"<span size='x-large'><b>{charge_percentage}%</b></span>"
+        )
         status_box.pack_start(charge_label, False, False, 0)
 
         # State label
@@ -277,14 +283,38 @@ class BatteryTab(Gtk.Box):
         state_label.set_markup(f"<span size='large'>{state_text.capitalize()}</span>")
         status_box.pack_start(state_label, False, False, 15)
 
+        # Converts time strings into hours and minutes.
+        def normalize_time(time_str: str) -> str:
+            if "hour" in time_str:
+                value = float(time_str.split()[0])
+                hours = int(value)
+                minutes = round((value - hours) * 60)
+                parts = []
+                if hours > 0:
+                    parts.append(f"{hours} hour{'s' if hours != 1 else ''}")
+                if minutes > 0:
+                    parts.append(f"{minutes} minute{'s' if minutes != 1 else ''}")
+                return " ".join(parts)
+            elif "minute" in time_str:
+                minutes = int(float(time_str.split()[0]))
+                return f"{minutes} minute{'s' if minutes != 1 else ''}"
+            else:
+                return time_str  # fallback if format not recognized
+
         # Time estimates
         if "Time to Empty" in battery_info and "discharging" in state_text.lower():
             time_label = Gtk.Label(xalign=0)
-            time_label.set_markup(f"<span weight='bold'>Time remaining:</span> {battery_info['Time to Empty']}")
+
+            time_to_empty = normalize_time(battery_info["Time to Empty"])
+            time_label.set_markup(
+                f"<span weight='bold'>Time remaining:</span> {time_to_empty}"
+            )
             status_box.pack_end(time_label, False, False, 0)
         elif "Time to Full" in battery_info and "charging" in state_text.lower():
             time_label = Gtk.Label(xalign=0)
-            time_label.set_markup(f"<span weight='bold'>Full in:</span> {battery_info['Time to Full']}")
+
+            time_to_full = normalize_time(battery_info["Time to Full"])
+            time_label.set_markup(f"<span weight='bold'>Full in:</span> {time_to_full}")
             status_box.pack_end(time_label, False, False, 0)
 
         content_box.pack_start(status_box, False, False, 0)
@@ -323,15 +353,25 @@ class BatteryTab(Gtk.Box):
         notebook = Gtk.Notebook()
 
         # Create tabs for different categories
-        self.add_info_tab(notebook, self.txt.battery_overview, battery_info, [
-            "Charge", "State", "Capacity", "Technology",
-            "Energy Rate", "Voltage"
-        ])
+        self.add_info_tab(
+            notebook,
+            self.txt.battery_overview,
+            battery_info,
+            ["Charge", "State", "Capacity", "Technology", "Energy Rate", "Voltage"],
+        )
 
-        self.add_info_tab(notebook, self.txt.battery_details, battery_info, [
-            "Energy", "Energy Empty", "Energy Full",
-            "Energy Full Design", "Warning Level"
-        ])
+        self.add_info_tab(
+            notebook,
+            self.txt.battery_details,
+            battery_info,
+            [
+                "Energy",
+                "Energy Empty",
+                "Energy Full",
+                "Energy Full Design",
+                "Warning Level",
+            ],
+        )
 
         content_box.pack_start(notebook, True, True, 0)
 
@@ -445,7 +485,7 @@ class BatteryTab(Gtk.Box):
         mode_icons = {
             self.txt.battery_power_saving: "power-profile-power-saver-symbolic",
             self.txt.battery_balanced: "power-profile-balanced-symbolic",
-            self.txt.battery_performance: "power-profile-performance-symbolic"
+            self.txt.battery_performance: "power-profile-performance-symbolic",
         }
 
         # Get current active mode
@@ -460,7 +500,9 @@ class BatteryTab(Gtk.Box):
             button_box.set_margin_bottom(8)
 
             # Icon
-            icon = Gtk.Image.new_from_icon_name(mode_icons.get(mode, "dialog-question-symbolic"), Gtk.IconSize.BUTTON)
+            icon = Gtk.Image.new_from_icon_name(
+                mode_icons.get(mode, "dialog-question-symbolic"), Gtk.IconSize.BUTTON
+            )
             button_box.pack_start(icon, False, False, 0)
 
             # Label - only show text when there's enough space
@@ -507,19 +549,25 @@ class BatteryTab(Gtk.Box):
 
             # Message
             no_battery_label = Gtk.Label()
-            no_battery_label.set_markup(f"<span size='large'>{self.txt.battery_no_batteries}</span>")
+            no_battery_label.set_markup(
+                f"<span size='large'>{self.txt.battery_no_batteries}</span>"
+            )
             no_battery_box.pack_start(no_battery_label, False, False, 10)
 
             self.content_box.pack_start(no_battery_box, True, True, 0)
         else:
             # Create a container for battery cards
-            batteries_container = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=15)
+            batteries_container = Gtk.Box(
+                orientation=Gtk.Orientation.VERTICAL, spacing=15
+            )
             batteries_container.set_halign(Gtk.Align.FILL)
             batteries_container.set_hexpand(True)
 
             # Title for batteries section
             batteries_title = Gtk.Label(xalign=0)
-            batteries_title.set_markup(f"<span weight='bold' size='large'>{self.txt.battery_batteries}</span>")
+            batteries_title.set_markup(
+                f"<span weight='bold' size='large'>{self.txt.battery_batteries}</span>"
+            )
             batteries_title.set_margin_top(5)
             batteries_title.set_margin_bottom(5)
             batteries_container.pack_start(batteries_title, False, False, 0)
@@ -538,7 +586,9 @@ class BatteryTab(Gtk.Box):
                         battery_info = self.parse_upower_output(result.stdout)
 
                         # Create a styled card for this battery
-                        battery_card = self.create_battery_card(battery_info, device_path)
+                        battery_card = self.create_battery_card(
+                            battery_info, device_path
+                        )
                         batteries_container.pack_start(battery_card, False, False, 0)
                 except Exception as e:
                     self.logging.log(
@@ -618,34 +668,41 @@ class BatteryTab(Gtk.Box):
 
         # Add combined refresh/scan button with expandable animation
         self.refresh_button = Gtk.Button()
-        self.refresh_btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        self.refresh_icon = Gtk.Image.new_from_icon_name("view-refresh-symbolic", Gtk.IconSize.BUTTON)
+        self.refresh_btn_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=0
+        )
+        self.refresh_icon = Gtk.Image.new_from_icon_name(
+            "view-refresh-symbolic", Gtk.IconSize.BUTTON
+        )
         self.refresh_label = Gtk.Label(label="Refresh")
         self.refresh_label.set_margin_start(5)
         self.refresh_btn_box.pack_start(self.refresh_icon, False, False, 0)
-        
+
         # Animation controller
         self.refresh_revealer = Gtk.Revealer()
-        self.refresh_revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_RIGHT)
+        self.refresh_revealer.set_transition_type(
+            Gtk.RevealerTransitionType.SLIDE_RIGHT
+        )
         self.refresh_revealer.set_transition_duration(150)
         self.refresh_revealer.add(self.refresh_label)
         self.refresh_revealer.set_reveal_child(False)
         self.refresh_btn_box.pack_start(self.refresh_revealer, False, False, 0)
-        
+
         self.refresh_button.add(self.refresh_btn_box)
         refresh_tooltip = getattr(self.txt, "refresh_tooltip", "Refresh Info")
         self.refresh_button.set_tooltip_text(refresh_tooltip)
         self.refresh_button.connect("clicked", self.refresh_battery_info)
-        
+
         # Hover behavior
-        self.refresh_button.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK | Gdk.EventMask.LEAVE_NOTIFY_MASK)
+        self.refresh_button.set_events(
+            Gdk.EventMask.ENTER_NOTIFY_MASK | Gdk.EventMask.LEAVE_NOTIFY_MASK
+        )
         self.refresh_button.connect("enter-notify-event", self.on_refresh_enter)
         self.refresh_button.connect("leave-notify-event", self.on_refresh_leave)
 
         # Add refresh button to header
         header_box.pack_end(self.refresh_button, False, False, 0)
         self.pack_start(header_box, False, False, 0)
-
 
         # Create scrollable content
         self.scroll_window = Gtk.ScrolledWindow()
@@ -673,17 +730,14 @@ class BatteryTab(Gtk.Box):
         self.dropdown_box.set_margin_top(5)
         # Note: The dropdown is not visible but set active in code to trigger mode change
 
-
     def on_refresh_enter(self, widget, event):
         alloc = widget.get_allocation()
-        if (0 <= event.x <= alloc.width and 
-            0 <= event.y <= alloc.height):
+        if 0 <= event.x <= alloc.width and 0 <= event.y <= alloc.height:
             self.refresh_revealer.set_reveal_child(True)
         return False
-    
+
     def on_refresh_leave(self, widget, event):
         alloc = widget.get_allocation()
-        if not (0 <= event.x <= alloc.width and 
-               0 <= event.y <= alloc.height):
-            self.refresh_revealer.set_reveal_child(False) 
+        if not (0 <= event.x <= alloc.width and 0 <= event.y <= alloc.height):
+            self.refresh_revealer.set_reveal_child(False)
         return False

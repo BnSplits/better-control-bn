@@ -6,7 +6,7 @@ from utils.logger import LogLevel, Logger
 from utils.translations import English, Spanish
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk, GLib, Gdk # type: ignore
+from gi.repository import Gtk, GLib, Gdk  # type: ignore
 
 from tools.bluetooth import (
     get_bluetooth_status,
@@ -23,7 +23,7 @@ from ui.widgets.bluetooth_device_row import BluetoothDeviceRow
 class BluetoothTab(Gtk.Box):
     """Bluetooth settings tab"""
 
-    def __init__(self, logging: Logger, txt: English|Spanish):
+    def __init__(self, logging: Logger, txt: English | Spanish):
         super().__init__(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.txt = txt
         self.logging = logging
@@ -80,27 +80,37 @@ class BluetoothTab(Gtk.Box):
 
         # Add combined refresh/scan button with expandable animation
         self.refresh_button = Gtk.Button()
-        self.refresh_btn_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=0)
-        self.refresh_icon = Gtk.Image.new_from_icon_name("view-refresh-symbolic", Gtk.IconSize.BUTTON)
+        self.refresh_btn_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=0
+        )
+        self.refresh_icon = Gtk.Image.new_from_icon_name(
+            "view-refresh-symbolic", Gtk.IconSize.BUTTON
+        )
         self.refresh_label = Gtk.Label(label="Refresh")
         self.refresh_label.set_margin_start(5)
         self.refresh_btn_box.pack_start(self.refresh_icon, False, False, 0)
-        
+
         # Animation controller
         self.refresh_revealer = Gtk.Revealer()
-        self.refresh_revealer.set_transition_type(Gtk.RevealerTransitionType.SLIDE_RIGHT)
+        self.refresh_revealer.set_transition_type(
+            Gtk.RevealerTransitionType.SLIDE_RIGHT
+        )
         self.refresh_revealer.set_transition_duration(150)
         self.refresh_revealer.add(self.refresh_label)
         self.refresh_revealer.set_reveal_child(False)
         self.refresh_btn_box.pack_start(self.refresh_revealer, False, False, 0)
-        
+
         self.refresh_button.add(self.refresh_btn_box)
-        refresh_tooltip = getattr(self.txt, "refresh_tooltip", "Refresh and Scan for Devices")
+        refresh_tooltip = getattr(
+            self.txt, "refresh_tooltip", "Refresh and Scan for Devices"
+        )
         self.refresh_button.set_tooltip_text(refresh_tooltip)
         self.refresh_button.connect("clicked", self.on_scan_clicked)
-        
+
         # Hover behavior
-        self.refresh_button.set_events(Gdk.EventMask.ENTER_NOTIFY_MASK | Gdk.EventMask.LEAVE_NOTIFY_MASK)
+        self.refresh_button.set_events(
+            Gdk.EventMask.ENTER_NOTIFY_MASK | Gdk.EventMask.LEAVE_NOTIFY_MASK
+        )
         self.refresh_button.connect("enter-notify-event", self.on_refresh_enter)
         self.refresh_button.connect("leave-notify-event", self.on_refresh_leave)
 
@@ -157,47 +167,46 @@ class BluetoothTab(Gtk.Box):
         # Check for connected Bluetooth devices and switch audio if necessary
         devices = get_devices(self.logging)
         for device in devices:
-            if device['connected']:
+            if device["connected"]:
                 from tools.bluetooth import get_bluetooth_manager
+
                 manager = get_bluetooth_manager(self.logging)
-                manager._switch_to_bluetooth_audio(device['path'])
+                manager._switch_to_bluetooth_audio(device["path"])
                 break
 
         # Initial device list population
         self.update_device_list()
-        
-        self.connect('key-press-event', self.on_key_press)
+
+        self.connect("key-press-event", self.on_key_press)
 
         # Set up periodic device list updates
         GLib.timeout_add(2000, self.periodic_update)
 
-
     def on_refresh_enter(self, widget, event):
         alloc = widget.get_allocation()
-        if (0 <= event.x <= alloc.width and 
-            0 <= event.y <= alloc.height):
+        if 0 <= event.x <= alloc.width and 0 <= event.y <= alloc.height:
             self.refresh_revealer.set_reveal_child(True)
         return False
-    
+
     def on_refresh_leave(self, widget, event):
         alloc = widget.get_allocation()
-        if not (0 <= event.x <= alloc.width and 
-               0 <= event.y <= alloc.height):
-            self.refresh_revealer.set_reveal_child(False) 
+        if not (0 <= event.x <= alloc.width and 0 <= event.y <= alloc.height):
+            self.refresh_revealer.set_reveal_child(False)
         return False
-        
+
     # keybinds for bluetooth tab
     def on_key_press(self, widget, event):
         keyval = event.keyval
-        
+
         if keyval in (114, 82):
             if self.power_switch.get_active():
                 self.logging.log(LogLevel.Info, "Refreshing bluetooth list via keybind")
                 self.update_device_list()
                 return True
             else:
-                self.logging.log(LogLevel.Info, "Unable to refresh devices, bluetooth is off")
-                
+                self.logging.log(
+                    LogLevel.Info, "Unable to refresh devices, bluetooth is off"
+                )
 
     def update_device_list(self):
         """Update the list of Bluetooth devices"""
@@ -215,12 +224,13 @@ class BluetoothTab(Gtk.Box):
                 devices = get_devices(self.logging)
                 for device in devices:
                     # Get battery info for connected devices
-                    if device['connected']:
+                    if device["connected"]:
                         from tools.bluetooth import get_bluetooth_manager
+
                         manager = get_bluetooth_manager(self.logging)
-                        battery = manager.get_device_battery(device['path'])
+                        battery = manager.get_device_battery(device["path"])
                         if battery is not None:
-                            device['battery'] = battery
+                            device["battery"] = battery
                     device_row = BluetoothDeviceRow(device, self.txt)
                     device_row.connect_button.connect(
                         "clicked", self.on_connect_clicked, device["path"]
@@ -238,7 +248,7 @@ class BluetoothTab(Gtk.Box):
         """Update the device list periodically"""
         try:
             # Skip update if tab is being destroyed
-            if hasattr(self, 'is_being_destroyed') and self.is_being_destroyed:
+            if hasattr(self, "is_being_destroyed") and self.is_being_destroyed:
                 return False
 
             self.update_device_list()
@@ -275,7 +285,9 @@ class BluetoothTab(Gtk.Box):
                 GLib.source_remove(self.discovery_timeout_id)
                 self.discovery_timeout_id = None
             except Exception as e:
-                self.logging.log(LogLevel.Error, f"Error removing discovery timeout: {e}")
+                self.logging.log(
+                    LogLevel.Error, f"Error removing discovery timeout: {e}"
+                )
 
         if self.discovery_check_id is not None:
             try:
@@ -417,7 +429,7 @@ class BluetoothTab(Gtk.Box):
             device_path (str): DBus path of the device
         """
         # Store button reference in a dictionary keyed by device path
-        if not hasattr(self, '_processing_buttons'):
+        if not hasattr(self, "_processing_buttons"):
             self._processing_buttons = {}
         self._processing_buttons[device_path] = button
 
@@ -440,7 +452,10 @@ class BluetoothTab(Gtk.Box):
 
                 stored_button = self._processing_buttons[device_path]
                 # Make sure the button is still a valid GTK widget
-                if not isinstance(stored_button, Gtk.Button) or not stored_button.get_parent():
+                if (
+                    not isinstance(stored_button, Gtk.Button)
+                    or not stored_button.get_parent()
+                ):
                     # Button was removed from UI
                     del self._processing_buttons[device_path]
                     self.update_device_list()
@@ -464,7 +479,7 @@ class BluetoothTab(Gtk.Box):
                         modal=True,
                         message_type=Gtk.MessageType.ERROR,
                         buttons=Gtk.ButtonsType.OK,
-                        text=self.txt.bluetooth_connect_failed
+                        text=self.txt.bluetooth_connect_failed,
                     )
                     dialog.format_secondary_text(self.txt.bluetooth_try_again)
                     dialog.run()
@@ -484,7 +499,7 @@ class BluetoothTab(Gtk.Box):
             device_path (str): DBus path of the device
         """
         # Store button reference in a dictionary keyed by device path
-        if not hasattr(self, '_processing_buttons'):
+        if not hasattr(self, "_processing_buttons"):
             self._processing_buttons = {}
         self._processing_buttons[device_path] = button
 
@@ -507,7 +522,10 @@ class BluetoothTab(Gtk.Box):
 
                 stored_button = self._processing_buttons[device_path]
                 # Make sure the button is still a valid GTK widget
-                if not isinstance(stored_button, Gtk.Button) or not stored_button.get_parent():
+                if (
+                    not isinstance(stored_button, Gtk.Button)
+                    or not stored_button.get_parent()
+                ):
                     # Button was removed from UI
                     del self._processing_buttons[device_path]
                     self.update_device_list()
@@ -531,7 +549,7 @@ class BluetoothTab(Gtk.Box):
                         modal=True,
                         message_type=Gtk.MessageType.ERROR,
                         buttons=Gtk.ButtonsType.OK,
-                        text=self.txt.bluetooth_disconnect_failed
+                        text=self.txt.bluetooth_disconnect_failed,
                     )
                     dialog.format_secondary_text(self.txt.bluetooth_try_again)
                     dialog.run()
