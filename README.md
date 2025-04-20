@@ -5,7 +5,6 @@
 ### _A sleek GTK-themed control panel for Linux_ 🐧
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-429768.svg?style=flat-square&logo=github&labelColor=444)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/BnSplits/better-control-bn?style=flat-square&color=429768&logo=polestar&labelColor=444)](https://github.com/BnSplits/better-control-bn/stargazers)
 [![Latest Release](https://img.shields.io/github/v/release/quantumvoid0/better-control.svg?style=flat-square&color=429768&logo=speedtest&label=latest-release&labelColor=444)](https://github.com/quantumvoid0/better-control/releases/latest)
 
 <br>
@@ -59,33 +58,15 @@ Before installing, ensure you have `git` and `base-devel` installed.
 
 # 💾 Installation & Uninstallation
 
-#### ➡️ Method 1 : To install or uninstall run this in your terminal, its very simple and straightforward
-
-```
-bash <(curl -s https://raw.githubusercontent.com/quantumvoid0/better-control/refs/heads/main/betterctl.sh)
-```
-
-<br>
-
-This script basically uses [AUR](https://aur.archlinux.org/packages/better-control-git) for arch and [Makefile](https://github.com/quantumvoid0/better-control/blob/main/Makefile) for other distros.
-If you want to check the contents of the file before running , we have nothing to hide go ahead by clicking this link >> <https://raw.githubusercontent.com/quantumvoid0/better-control/refs/heads/main/betterctl.sh>
-
-> This script will work on arch based , debian based , fedora based , void , alpine and dependencies will be automatically installed during installation. Better Control is also available on the AUR.
-
-#### ➡️ Method 2 : Manual Build
+#### ➡️ Method 1 : Manual Build
 
 > when you do maunal build make sure to get all dependencies by yourself
 
 ```bash
-git clone https://github.com/quantumvoid0/better-control
-cd better-control
+git clone https://github.com/BnSplits/better-control-bn.git
+cd better-control-bn
 sudo make install
 ```
-
-or you can get from AUR for arch devices `yay -S better-control-git`
-
-> [!NOTE]
-> you can update or uninstall the app by running `betterctl` on your terminal
 
 <br>
 
