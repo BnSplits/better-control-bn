@@ -1,228 +1,242 @@
 /* Animation classes for widget transitions */
 .animate-show {
-    opacity: 0;
-    transition: opacity 200ms ease-in;
+  opacity: 0;
+  transition: opacity 200ms ease-in;
 }
 
 .animate-show:active,
 .animate-show:focus,
 .animate-show:hover {
-    opacity: 1;
+  opacity: 1;
 }
 
 /* Fade-in animation */
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .fade-in {
-    animation: fadeIn 200ms ease-in forwards;
+  animation: fadeIn 200ms ease-in forwards;
 }
 
 /* Tab container styling */
 notebook tab {
-    margin: 4px;
-    padding: 4px 12px;
+  margin: 4px;
+  padding: 4px 12px;
 }
 
 notebook tab:active,
 notebook tab:checked {
-    margin: 4px;
-    padding: 4px 12px;
+  margin: 4px;
+  padding: 4px 12px;
 }
 
 /* Content area padding */
 notebook > stack {
-    padding: 12px;
+  padding: 12px;
 }
 
 /* Rotate the gear icon */
 .rotate-gear {
-    transition: all 200ms ease;
-    -gtk-icon-transform: rotate(0deg);
+  transition: all 200ms ease;
+  -gtk-icon-transform: rotate(0deg);
 }
 
-.rotate-gear-active{
-    -gtk-icon-transform: rotate(360deg);
-    transition: all 600ms ease;
+.rotate-gear-active {
+  -gtk-icon-transform: rotate(360deg);
+  transition: all 600ms ease;
 }
 
 @keyframes pulse {
-    0% {
-     -gtk-icon-transform: scale(1);
-      opacity: 1;
-    }
-    50% {
-     -gtk-icon-transform: scale(1.05);
-      opacity: 0.8;
-    }
-    100% {
-     -gtk-icon-transform: scale(1);
-      opacity: 1;
-    }
+  0% {
+    -gtk-icon-transform: scale(1);
+    opacity: 1;
   }
-
+  50% {
+    -gtk-icon-transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    -gtk-icon-transform: scale(1);
+    opacity: 1;
+  }
+}
 
 .volume-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
 /* General tab icon animations */
 .tab-icon {
-    transition: all 200ms ease-in;
-    opacity: 1;
+  transition: all 200ms ease-in;
+  opacity: 1;
 }
 
 .tab-icon:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 .tab-icon:active {
-    opacity: 1;
+  opacity: 1;
 }
 
 .tab-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
 /* WiFi specific icon animations */
 .wifi-icon {
-    transition: all 200ms ease-in;
+  transition: all 200ms ease-in;
 }
 
-
 .wifi-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
 /* Specific icon animations */
 .bluetooth-icon {
-    transition: all 200ms ease-in;
+  transition: all 200ms ease-in;
 }
 
 .bluetooth-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
 .battery-icon {
-    transition: all 200ms ease-in;
+  transition: all 200ms ease-in;
 }
 
 .battery-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
 .display-icon {
-    transition: all 200ms ease-in;
+  transition: all 200ms ease-in;
 }
 
 .display-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
 .power-icon {
-    transition: all 200ms ease-in;
-    -gtk-icon-transform: rotate(0deg);
+  transition: all 200ms ease-in;
+  -gtk-icon-transform: rotate(0deg);
 }
 
 .power-icon-animate {
-    animation: pulse 600ms ease-in-out;
-    -gtk-icon-transform: rotate(360deg);
+  animation: pulse 600ms ease-in-out;
+  -gtk-icon-transform: rotate(360deg);
 }
 
 .settings-icon {
-    transition: all 200ms ease-in;
-    -gtk-icon-transform: rotate(0deg);
+  transition: all 200ms ease-in;
+  -gtk-icon-transform: rotate(0deg);
 }
 
 .settings-icon-animate {
-    animation: pulse 600ms ease-in-out;
-    -gtk-icon-transform: rotate(360deg);
+  animation: pulse 600ms ease-in-out;
+  -gtk-icon-transform: rotate(360deg);
 }
 
 .usb-icon {
-    transition: all 200ms ease-in;
+  transition: all 200ms ease-in;
 }
 
 .usb-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
 .autostart-icon {
-    transition: all 200ms ease-in;
+  transition: all 200ms ease-in;
 }
 
 .autostart-icon-animate {
-    animation: pulse 600ms ease-in-out;
+  animation: pulse 600ms ease-in-out;
 }
 
-
 expander {
-    padding: 6px;
-    border-radius: 6px;
+  padding: 6px;
+  border-radius: 6px;
 }
 
 /* Connection status indicator */
 .connection-indicator {
-    border-radius: 50%;
-    margin: 0 8px 0 0;
-    min-width: 16px;
-    min-height: 16px;
-    transition: all 0.3s ease;
+  border-radius: 50%;
+  margin: 0 8px 0 0;
+  min-width: 16px;
+  min-height: 16px;
+  transition: all 0.3s ease;
 }
 
 .device-status-container {
-    margin-left: 4px;
-    padding: 1px 4px;
-    border-radius: 3px;
-    background-color: rgba(0,0,0,0.05);
+  margin-left: 4px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .connection-indicator {
-    border-radius: 50%;
-    min-width: 10px;
-    min-height: 10px;
-    margin-right: 2px;
+  border-radius: 50%;
+  min-width: 10px;
+  min-height: 10px;
+  margin-right: 2px;
 }
 
 .connection-indicator.connected {
-    background-color: #2ecc71; /* Green */
-    box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+  background-color: #2ecc71; /* Green */
+  box-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
 }
 
 .connection-indicator.disconnected {
-    background-color: #e74c3c; /* Red */
+  background-color: #e74c3c; /* Red */
 }
 
 .status-label {
-    font-size: 0.9em;
-    opacity: 0.83;
-    margin: 0 0 0 -20px;
+  font-size: 0.9em;
+  opacity: 0.83;
+  margin: 0 0 0 -20px;
 }
 
 .connection-label {
-    font-size: 0.9em;
-    color: #7f8c8d;
-    margin-right: 5px;
-    font-weight: 500;
+  font-size: 0.9em;
+  color: #7f8c8d;
+  margin-right: 5px;
+  font-weight: 500;
 }
 
 /* Battery percentage styling */
 .battery-percentage {
-    font-size: 0.8em;
-    color: #7f8c8d;
-    margin-left: 2px;
+  font-size: 0.8em;
+  color: #7f8c8d;
+  margin-left: 2px;
 }
 
 /* Battery level animations */
 @keyframes battery-pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.7; }
-    100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .low-battery {
-    animation: battery-pulse 2s infinite;
-    color: #e74c3c;
+  animation: battery-pulse 2s infinite;
+  color: #e74c3c;
+}
+
+/* wifi row style */
+.wifi-list-item:selected,
+.wifi-list-item:selected:hover,
+.wifi-list-item:active {
+  background-color: alpha(@headerbar_border_color, 0.6);
 }

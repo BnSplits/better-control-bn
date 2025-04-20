@@ -437,6 +437,9 @@ class WiFiTab(Gtk.Box):
         box.set_margin_top(6)
         box.set_margin_bottom(6)
 
+        # Add css class
+        row.get_style_context().add_class("wifi-list-item")
+
         # Add signal icon
         signal_icon = self._create_signal_icon(network)
         box.pack_start(signal_icon, False, False, 0)
