@@ -49,3 +49,6 @@ uninstall:
 
 clean:
 	@echo "Nothing to clean."
+
+reinstall: uninstall install
+	@echo "Reinstallation complete!"
