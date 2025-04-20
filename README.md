@@ -1,14 +1,12 @@
-# ⚙️ Better Control 
+# ⚙️ Better Control
 
 <img src="https://github.com/user-attachments/assets/21a9f732-28a0-4da4-b0ff-9f9093cb2b3b" width="650">
 
-### *A sleek GTK-themed control panel for Linux* 🐧
+### _A sleek GTK-themed control panel for Linux_ 🐧
 
-[![AUR Package](https://img.shields.io/badge/AUR-better--control--git-429768?style=flat-square&logo=archlinux&logoColor=white&labelColor=444)](https://aur.archlinux.org/packages/better-control-git)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-429768.svg?style=flat-square&logo=github&labelColor=444)](LICENSE)
-[![GitHub stars](https://img.shields.io/github/stars/quantumvoid0/better-control?style=flat-square&color=429768&logo=polestar&labelColor=444)](https://github.com/quantumvoid0/better-control/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/BnSplits/better-control-bn?style=flat-square&color=429768&logo=polestar&labelColor=444)](https://github.com/BnSplits/better-control-bn/stargazers)
 [![Latest Release](https://img.shields.io/github/v/release/quantumvoid0/better-control.svg?style=flat-square&color=429768&logo=speedtest&label=latest-release&labelColor=444)](https://github.com/quantumvoid0/better-control/releases/latest)
-
 
 <br>
 
@@ -29,28 +27,28 @@
 <summary><b>Dependencies</b></summary>
 
 <br><br>
-  
+
 Before installing, ensure you have `git` and `base-devel` installed.
 
 ### Core Dependencies
 
-| Dependency | Purpose |
-|------------|---------|
-| **GTK 3** | UI framework |
+| Dependency           | Purpose                                                         |
+| -------------------- | --------------------------------------------------------------- |
+| **GTK 3**            | UI framework                                                    |
 | **Python Libraries** | python-gobject, python-dbus, python-psutil, python-setproctitle |
 
 ### Feature-Specific Dependencies
 
-| Feature | Required Packages |
-|---------|------------------|
-| **Wi-Fi Management** | NetworkManager, python-qrcode |
-| **Bluetooth** | BlueZ & BlueZ Utils |
-| **Audio Control** | PipeWire or PulseAudio |
-| **Brightness** | brightnessctl |
-| **Power Management** | power-profiles-daemon, upower |
-| **Blue Light Filter** | gammastep |
-| **USBGuard** | USBGuard |
-| **pillow** | For QR Code on wifi |
+| Feature               | Required Packages             |
+| --------------------- | ----------------------------- |
+| **Wi-Fi Management**  | NetworkManager, python-qrcode |
+| **Bluetooth**         | BlueZ & BlueZ Utils           |
+| **Audio Control**     | PipeWire or PulseAudio        |
+| **Brightness**        | brightnessctl                 |
+| **Power Management**  | power-profiles-daemon, upower |
+| **Blue Light Filter** | gammastep                     |
+| **USBGuard**          | USBGuard                      |
+| **pillow**            | For QR Code on wifi           |
 
 > [TIP]
 > If you don't need a specific feature, you can safely omit its corresponding dependency and hide its tab in the settings.
@@ -61,16 +59,16 @@ Before installing, ensure you have `git` and `base-devel` installed.
 
 # 💾 Installation & Uninstallation
 
-#### ➡️ Method 1 : To install or uninstall run this in your terminal, its very simple and straightforward. 
+#### ➡️ Method 1 : To install or uninstall run this in your terminal, its very simple and straightforward
 
 ```
-bash <(curl -s https://raw.githubusercontent.com/quantumvoid0/better-control/refs/heads/main/betterctl.sh) 
+bash <(curl -s https://raw.githubusercontent.com/quantumvoid0/better-control/refs/heads/main/betterctl.sh)
 ```
 
 <br>
 
-This script basically uses [AUR](https://aur.archlinux.org/packages/better-control-git) for arch and [Makefile](https://github.com/quantumvoid0/better-control/blob/main/Makefile) for other distros. 
-If you want to check the contents of the file before running , we have nothing to hide go ahead by clicking this link >> https://raw.githubusercontent.com/quantumvoid0/better-control/refs/heads/main/betterctl.sh
+This script basically uses [AUR](https://aur.archlinux.org/packages/better-control-git) for arch and [Makefile](https://github.com/quantumvoid0/better-control/blob/main/Makefile) for other distros.
+If you want to check the contents of the file before running , we have nothing to hide go ahead by clicking this link >> <https://raw.githubusercontent.com/quantumvoid0/better-control/refs/heads/main/betterctl.sh>
 
 > This script will work on arch based , debian based , fedora based , void , alpine and dependencies will be automatically installed during installation. Better Control is also available on the AUR.
 
@@ -99,16 +97,16 @@ You can use `betterctl` to update or uninstall the application.
 
 ### Keybindings
 
-| Keybinding | Action |
-|------------|--------|
-| `Shift + S` | Open Settings Dialog |
-| `Q` or `Ctrl + Q` | Quit Application |
+| Keybinding        | Action               |
+| ----------------- | -------------------- |
+| `Shift + S`       | Open Settings Dialog |
+| `Q` or `Ctrl + Q` | Quit Application     |
 
 <br><br>
 
 # 📚 Contribution
-Feel free to propose PR and suggest new features, improvements. If you wish to contribute with translation for the app into your language, please see the `utils/translations.py` file.
 
+Feel free to propose PR and suggest new features, improvements. If you wish to contribute with translation for the app into your language, please see the `utils/translations.py` file.
 
 ## 📄 License
 
@@ -154,6 +152,6 @@ Better Control has been tested on Arch Linux with Hyprland, GNOME, and KDE Plasm
 
 ### Made with ❤️ for the Linux community
 
-[Report Bug](https://github.com/quantumvoid0/better-control/issues) • 
-[Request Feature](https://github.com/quantumvoid0/better-control/discussions) • 
+[Report Bug](https://github.com/quantumvoid0/better-control/issues) •
+[Request Feature](https://github.com/quantumvoid0/better-control/discussions) •
 [Contribute](https://github.com/quantumvoid0/better-control/tree/main?tab=readme-ov-file#--contribution)

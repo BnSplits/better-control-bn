@@ -372,6 +372,8 @@ class BluetoothManager:
                     "notify-send",
                     DEFAULT_NOTIFY_SUBJECT,
                     f"{device_name} connected.\n{battery_info}",
+                    "-a",
+                    "'Better Control'",
                     "-i",
                     "/usr/share/icons/Papirus-Dark/32x32/apps/application-default-icon.svg",
                 ]
@@ -458,6 +460,8 @@ class BluetoothManager:
                         "notify-send",
                         DEFAULT_NOTIFY_SUBJECT,
                         f"{device_name} connected.\n{battery_info}",
+                        "-a",
+                        "'Better Control'",
                         "-i",
                         "/usr/share/icons/Papirus-Dark/32x32/apps/application-default-icon.svg",
                     ]
@@ -505,6 +509,8 @@ class BluetoothManager:
                     "notify-send",
                     DEFAULT_NOTIFY_SUBJECT,
                     f"{device_name} disconnected.",
+                    "-a",
+                    "'Better Control'",
                     "-i",
                     "/usr/share/icons/Papirus-Dark/32x32/apps/application-default-icon.svg",
                 ]
@@ -570,6 +576,8 @@ class BluetoothManager:
                         "notify-send",
                         DEFAULT_NOTIFY_SUBJECT,
                         f"{device_name} disconnected.",
+                        "-a",
+                        "'Better Control'",
                         "-i",
                         "/usr/share/icons/Papirus-Dark/32x32/apps/application-default-icon.svg",
                     ]
