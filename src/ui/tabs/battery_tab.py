@@ -202,6 +202,7 @@ class BatteryTab(Gtk.Box):
                     "percentage": "Charge",
                     "capacity": "Capacity",
                     "technology": "Technology",
+                    "charge-cycles": "Charge Cycles",
                 }
 
                 display_key = key_mapping.get(key, key.capitalize())
@@ -214,8 +215,8 @@ class BatteryTab(Gtk.Box):
         # Extract basic info first to reduce complexity
         charge_percentage = self._get_charge_percentage(battery_info)
         state_text = battery_info.get("State", "Unknown")
-        icon_name = self._get_battery_icon(charge_percentage, state_text)
-        title = self._get_battery_title(battery_info, device_path)
+        # icon_name = self._get_battery_icon(charge_percentage, state_text)
+        # title = self._get_battery_title(battery_info, device_path)
 
         # Main card container
         card = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=0)
@@ -224,48 +225,38 @@ class BatteryTab(Gtk.Box):
         card.set_margin_start(10)
         card.set_margin_end(10)
 
-        # Create header for expander
-        header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        # Create header
+        # header_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        # header_box.set_margin_top(10)
+        # header_box.set_margin_start(15)
+        # header_box.set_margin_end(15)
 
         # Battery icon in header
-        battery_icon = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
-        header_box.pack_start(battery_icon, False, False, 0)
+        # battery_icon = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.BUTTON)
+        # header_box.pack_start(battery_icon, False, False, 0)
 
         # Battery name & percentage
-        header_label = Gtk.Label(xalign=0)
-        header_label.set_markup(f"<b>{title}</b> - {charge_percentage}%")
-        header_box.pack_start(header_label, True, True, 5)
+        # header_label = Gtk.Label(xalign=0)
+        # header_label.set_markup(f"<b>{title}</b> - {charge_percentage}%")
+        # header_box.pack_start(header_label, True, True, 5)
+        # card.pack_start(header_box, False, False, 0)
 
-        # Create the expander widget
-        expander = Gtk.Expander()
-        expander.set_label_widget(header_box)
-
-        # Set expander state based on previous state
-        device_id = os.path.basename(device_path)
-        expander.set_expanded(self.expanded_batteries.get(device_id, False))
-
-        # Set expander state to always have battery info expanded
-        expander.set_expanded(True)
-
-        expander.set_margin_top(10)
-        expander.set_margin_bottom(5)
-        expander.set_margin_start(15)
-        expander.set_margin_end(15)
-
-        # Container for expanded content
+        # Container for content
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         content_box.set_margin_top(10)
-        content_box.set_margin_bottom(10)
+        content_box.set_margin_bottom(
+            5
+        )  # Reduced from 10 to account for removed expander margin
         content_box.set_margin_start(15)
         content_box.set_margin_end(15)
 
         # Manufacturer info
-        manufacturer = battery_info.get("Manufacturer", "Unknown")
-        manufacturer_label = Gtk.Label(xalign=0)
-        manufacturer_label.set_markup(
-            f"<span size='small'>Manufacturer: {manufacturer}</span>"
-        )
-        content_box.pack_start(manufacturer_label, False, False, 0)
+        # manufacturer = battery_info.get("Manufacturer", "Unknown")
+        # manufacturer_label = Gtk.Label(xalign=0)
+        # manufacturer_label.set_markup(
+        #     f"<span size='small'>Manufacturer: {manufacturer}</span>"
+        # )
+        # content_box.pack_start(manufacturer_label, False, False, 0)
 
         # Battery detailed status
         status_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=15)
@@ -283,7 +274,7 @@ class BatteryTab(Gtk.Box):
         state_label.set_markup(f"<span size='large'>{state_text.capitalize()}</span>")
         status_box.pack_start(state_label, False, False, 15)
 
-        # Converts time strings into hours and minutes.
+        # Time estimates (same as original)
         def normalize_time(time_str: str) -> str:
             if "hour" in time_str:
                 value = float(time_str.split()[0])
@@ -299,12 +290,10 @@ class BatteryTab(Gtk.Box):
                 minutes = int(float(time_str.split()[0]))
                 return f"{minutes} minute{'s' if minutes != 1 else ''}"
             else:
-                return time_str  # fallback if format not recognized
+                return time_str
 
-        # Time estimates
         if "Time to Empty" in battery_info and "discharging" in state_text.lower():
             time_label = Gtk.Label(xalign=0)
-
             time_to_empty = normalize_time(battery_info["Time to Empty"])
             time_label.set_markup(
                 f"<span weight='bold'>Time remaining:</span> {time_to_empty}"
@@ -312,7 +301,6 @@ class BatteryTab(Gtk.Box):
             status_box.pack_end(time_label, False, False, 0)
         elif "Time to Full" in battery_info and "charging" in state_text.lower():
             time_label = Gtk.Label(xalign=0)
-
             time_to_full = normalize_time(battery_info["Time to Full"])
             time_label.set_markup(f"<span weight='bold'>Full in:</span> {time_to_full}")
             status_box.pack_end(time_label, False, False, 0)
@@ -352,12 +340,20 @@ class BatteryTab(Gtk.Box):
         # Notebook with tabs
         notebook = Gtk.Notebook()
 
-        # Create tabs for different categories
+        # Create tabs for different categories (same as original)
         self.add_info_tab(
             notebook,
             self.txt.battery_overview,
             battery_info,
-            ["Charge", "State", "Capacity", "Technology", "Energy Rate", "Voltage"],
+            [
+                "Charge",
+                "State",
+                "Charge Cycles",
+                "Capacity",
+                "Technology",
+                "Energy Rate",
+                "Voltage",
+            ],
         )
 
         self.add_info_tab(
@@ -374,26 +370,7 @@ class BatteryTab(Gtk.Box):
         )
 
         content_box.pack_start(notebook, True, True, 0)
-
-        # Add content to expander
-        expander.add(content_box)
-
-        # Log expand/collapse events
-        def on_expander_toggled(widget, param):
-            is_expanded = widget.get_expanded()
-            # Store expanded state for this device
-            device_id = os.path.basename(device_path)
-            self.expanded_batteries[device_id] = is_expanded
-
-            if is_expanded:
-                self.logging.log(LogLevel.Info, f"Expanded details for {title}")
-            else:
-                self.logging.log(LogLevel.Info, f"Collapsed details for {title}")
-
-        expander.connect("notify::expanded", on_expander_toggled)
-
-        # Add the expander to the card
-        card.pack_start(expander, True, True, 0)
+        card.pack_start(content_box, False, False, 0)
 
         return card
 
@@ -566,34 +543,42 @@ class BatteryTab(Gtk.Box):
             # Title for batteries section
             batteries_title = Gtk.Label(xalign=0)
             batteries_title.set_markup(
-                f"<span weight='bold' size='large'>{self.txt.battery_batteries}</span>"
+                "<span weight='bold' size='large'>Informations</span>"
             )
+            # batteries_title.set_markup(
+            #     f"<span weight='bold' size='large'>{self.txt.battery_batteries}</span>"
+            # )
             batteries_title.set_margin_top(5)
-            batteries_title.set_margin_bottom(5)
+            # batteries_title.set_margin_bottom(5)
             batteries_container.pack_start(batteries_title, False, False, 0)
 
             # Process each battery
             for device_path in battery_devices:
-                try:
-                    # Run upower command for this battery
-                    result = subprocess.run(
-                        f"upower -i {device_path}",
-                        shell=True,
-                        capture_output=True,
-                        text=True,
-                    )
-                    if result.returncode == 0:
-                        battery_info = self.parse_upower_output(result.stdout)
-
-                        # Create a styled card for this battery
-                        battery_card = self.create_battery_card(
-                            battery_info, device_path
+                # Get only the first battery
+                if battery_devices.index(device_path) == 0:
+                    try:
+                        # Run upower command for this battery
+                        result = subprocess.run(
+                            f"upower -i {device_path}",
+                            shell=True,
+                            capture_output=True,
+                            text=True,
                         )
-                        batteries_container.pack_start(battery_card, False, False, 0)
-                except Exception as e:
-                    self.logging.log(
-                        LogLevel.Error, f"Error processing battery {device_path}: {e}"
-                    )
+                        if result.returncode == 0:
+                            battery_info = self.parse_upower_output(result.stdout)
+
+                            # Create a styled card for this battery
+                            battery_card = self.create_battery_card(
+                                battery_info, device_path
+                            )
+                            batteries_container.pack_start(
+                                battery_card, False, False, 0
+                            )
+                    except Exception as e:
+                        self.logging.log(
+                            LogLevel.Error,
+                            f"Error processing battery {device_path}: {e}",
+                        )
 
             # Add battery container to the main content
             self.content_box.pack_start(batteries_container, False, False, 0)
