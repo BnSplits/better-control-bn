@@ -28,8 +28,6 @@ install:
 	# Create and install the control executable script
 	cp better-control control
 	cp control $(BIN_DIR)/control
-	cp betterctl.sh $(BIN_DIR)/betterctl
-	chmod +x $(BIN_DIR)/betterctl
 
 	# Cleanup temporary files
 	rm better-control control
@@ -46,7 +44,6 @@ uninstall:
 	rm -rf $(INSTALL_DIR)
 	rm -f $(BIN_DIR)/better-control
 	rm -f $(BIN_DIR)/control
-	rm -f $(BIN_DIR)/betterctl
 	rm -f $(DESTDIR)$(PREFIX)/share/applications/better-control.desktop
 	@echo "Uninstallation complete!"
 
