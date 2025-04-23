@@ -37,14 +37,18 @@ class BetterControl(Gtk.Window):
         # Initialize cache directory
         self.cache_dir = os.path.expanduser("~/.cache/better-control")
         os.makedirs(self.cache_dir, exist_ok=True)
-        
+
         # Preload frequently used icons
         self._icon_cache = {
             name: Gtk.IconTheme.get_default().load_icon(name, 16, 0)
-            for name in ["audio-volume-high-symbolic", "network-wireless-symbolic",
-                        "bluetooth-symbolic", "battery-good-symbolic"]
+            for name in [
+                "audio-volume-high-symbolic",
+                "network-wireless-symbolic",
+                "bluetooth-symbolic",
+                "battery-good-symbolic",
+            ]
         }
-        
+
         # Initialize thread safety mechanisms
         self._initialized = False
         self._is_destroyed = False
@@ -145,6 +149,12 @@ class BetterControl(Gtk.Window):
         self.notebook = Gtk.Notebook()
         self.add(self.notebook)
 
+        # Set vertical tabs if enabled in settings
+        if self.settings.get("vertical_tabs", False):
+            self.notebook.set_tab_pos(Gtk.PositionType.LEFT)
+        else:
+            self.notebook.set_tab_pos(Gtk.PositionType.TOP)
+
         # Hide tab bar in minimal mode
         if self.minimal_mode:
             self.notebook.set_show_tabs(False)
@@ -206,13 +216,27 @@ class BetterControl(Gtk.Window):
         self.tab_pages = {}
 
         # Define tab order from user settings or default
-        tab_order = self.settings.get("tab_order", ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"])
+        tab_order = self.settings.get(
+            "tab_order",
+            [
+                "Volume",
+                "Wi-Fi",
+                "Bluetooth",
+                "Battery",
+                "Display",
+                "Power",
+                "Autostart",
+                "USBGuard",
+            ],
+        )
 
         # Default initial tab to first in saved tab order
         requested_tab = tab_order[0] if tab_order else "Volume"
 
         # Override with command-line args if specified
-        if self.arg_parser.find_arg(("-V", "--volume")) or self.arg_parser.find_arg(("-v", "")):
+        if self.arg_parser.find_arg(("-V", "--volume")) or self.arg_parser.find_arg(
+            ("-v", "")
+        ):
             requested_tab = "Volume"
         elif self.arg_parser.find_arg(("-w", "--wifi")):
             requested_tab = "Wi-Fi"
@@ -235,7 +259,9 @@ class BetterControl(Gtk.Window):
         # Determine active tab (command line args > first visible)
         active_tab = None
         # Check command line args first
-        if self.arg_parser.find_arg(("-V", "--volume")) or self.arg_parser.find_arg(("-v", "")):
+        if self.arg_parser.find_arg(("-V", "--volume")) or self.arg_parser.find_arg(
+            ("-v", "")
+        ):
             active_tab = "Volume"
         elif self.arg_parser.find_arg(("-w", "--wifi")):
             active_tab = "Wi-Fi"
@@ -251,7 +277,7 @@ class BetterControl(Gtk.Window):
             active_tab = "Power"
         elif self.arg_parser.find_arg(("-u", "--usbguard")):
             active_tab = "USBGuard"
-        
+
         # If no args specified, use first visible tab
         if active_tab is None:
             visible_tabs = [name for name in tab_order if visibility.get(name, True)]
@@ -262,19 +288,19 @@ class BetterControl(Gtk.Window):
         for tab_name in tab_order:
             if not visibility.get(tab_name, True):
                 continue
-                
+
             # Create empty placeholder
             placeholder = Gtk.Box()
             placeholder.show_all()
-            
+
             # Add tab with label but empty content
             page_num = self.notebook.append_page(
                 placeholder,
-                self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name))
+                self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
             )
             self.tabs[tab_name] = placeholder
             self.tab_pages[tab_name] = page_num
-            
+
             # Load active tab content immediately
             if tab_name == active_tab and tab_name in self.tab_classes:
                 tab_instance = self.tab_classes[tab_name](self.logging, self.txt)
@@ -283,7 +309,7 @@ class BetterControl(Gtk.Window):
                 page_num = self.notebook.insert_page(
                     tab_instance,
                     self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
-                    page_num
+                    page_num,
                 )
                 self.tabs[tab_name] = tab_instance
                 self.tab_pages[tab_name] = page_num
@@ -292,7 +318,9 @@ class BetterControl(Gtk.Window):
         # Determine active tab (command line args > first visible)
         active_tab = None
         # Check command line args first
-        if self.arg_parser.find_arg(("-V", "--volume")) or self.arg_parser.find_arg(("-v", "")):
+        if self.arg_parser.find_arg(("-V", "--volume")) or self.arg_parser.find_arg(
+            ("-v", "")
+        ):
             active_tab = "Volume"
         elif self.arg_parser.find_arg(("-w", "--wifi")):
             active_tab = "Wi-Fi"
@@ -308,7 +336,7 @@ class BetterControl(Gtk.Window):
             active_tab = "Power"
         elif self.arg_parser.find_arg(("-u", "--usbguard")):
             active_tab = "USBGuard"
-        
+
         # If no args specified, use first visible tab
         if active_tab is None:
             visible_tabs = [name for name in tab_order if visibility.get(name, True)]
@@ -346,7 +374,16 @@ class BetterControl(Gtk.Window):
                         from ui.tabs.usbguard_tab import USBGuardTab
                         from ui.tabs.volume_tab import VolumeTab
 
-                        real_tab_classes = (BluetoothTab, WiFiTab, DisplayTab, BatteryTab, PowerTab, AutostartTab, USBGuardTab, VolumeTab)
+                        real_tab_classes = (
+                            BluetoothTab,
+                            WiFiTab,
+                            DisplayTab,
+                            BatteryTab,
+                            PowerTab,
+                            AutostartTab,
+                            USBGuardTab,
+                            VolumeTab,
+                        )
 
                         if isinstance(current_widget, real_tab_classes):
                             return False  # Already replaced
@@ -359,20 +396,28 @@ class BetterControl(Gtk.Window):
                             self.notebook.remove_page(page_num)
                             new_page_num = self.notebook.insert_page(
                                 tab_instance,
-                                self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
-                                page_num
+                                self.create_tab_label(
+                                    tab_name, self.get_icon_for_tab(tab_name)
+                                ),
+                                page_num,
                             )
                             self.tabs[tab_name] = tab_instance
                             self.tab_pages[tab_name] = new_page_num
-                            self.logging.log(LogLevel.Info, f"Preloaded tab: {tab_name}")
+                            self.logging.log(
+                                LogLevel.Info, f"Preloaded tab: {tab_name}"
+                            )
                             self.show_all()
                         except Exception as e:
-                            self.logging.log(LogLevel.Error, f"Failed to preload tab {tab_name}: {e}")
+                            self.logging.log(
+                                LogLevel.Error, f"Failed to preload tab {tab_name}: {e}"
+                            )
                         return False  # Only run once
 
                     GLib.idle_add(replace_placeholder)
                 except Exception as e:
-                    self.logging.log(LogLevel.Error, f"Error preloading tab {tab_name}: {e}")
+                    self.logging.log(
+                        LogLevel.Error, f"Error preloading tab {tab_name}: {e}"
+                    )
 
             thread = threading.Thread(target=worker, daemon=True)
             thread.start()
@@ -381,42 +426,49 @@ class BetterControl(Gtk.Window):
             # Skip preloading other tabs in minimal mode
             if self.minimal_mode:
                 return
-                
+
             # Load all other tabs after 3 second delay
-            visible_tabs = [name for name in tab_order 
-                          if visibility.get(name, True) and name != active_tab]
-            
+            visible_tabs = [
+                name
+                for name in tab_order
+                if visibility.get(name, True) and name != active_tab
+            ]
+
             def load_tab(tab_name):
                 if tab_name in self.tab_classes and tab_name in self.tab_pages:
                     # Get existing page number for this tab
                     page_num = self.tab_pages[tab_name]
-                    
+
                     # Load from cache if available
                     cached_state = self.load_from_cache(tab_name)
-                    
+
                     # Create tab instance in background thread
                     def create_tab():
-                        tab_instance = self.tab_classes[tab_name](self.logging, self.txt)
-                        if cached_state and hasattr(tab_instance, 'load_state'):
+                        tab_instance = self.tab_classes[tab_name](
+                            self.logging, self.txt
+                        )
+                        if cached_state and hasattr(tab_instance, "load_state"):
                             tab_instance.load_state(cached_state)
                         return tab_instance
-                    
+
                     # Replace placeholder with real content
                     tab_instance = create_tab()
                     tab_instance.show_all()
                     self.notebook.remove_page(page_num)
                     new_page_num = self.notebook.insert_page(
                         tab_instance,
-                        self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
-                        page_num
+                        self.create_tab_label(
+                            tab_name, self.get_icon_for_tab(tab_name)
+                        ),
+                        page_num,
                     )
                     self.tabs[tab_name] = tab_instance
                     self.tab_pages[tab_name] = new_page_num
-            
+
             # Load other tabs with staggered delays (100ms, 200ms, 300ms...)
             for i, tab_name in enumerate(visible_tabs, start=1):
                 GLib.timeout_add(100 * i, lambda name=tab_name: load_tab(name) or False)
-        
+
         # Start the delayed loading process
         GLib.idle_add(delayed_preload)
 
@@ -432,15 +484,15 @@ class BetterControl(Gtk.Window):
         cache_file = self.get_cache_file(tab_name)
         if not os.path.exists(cache_file):
             return None
-            
+
         try:
-            with open(cache_file, 'r') as f:
+            with open(cache_file, "r") as f:
                 data = json.load(f)
                 # Check if cache is expired (1 hour)
-                cache_time = datetime.fromisoformat(data['timestamp'])
+                cache_time = datetime.fromisoformat(data["timestamp"])
                 if (datetime.now() - cache_time).total_seconds() > 3600:
                     return None
-                return data['state']
+                return data["state"]
         except Exception:
             return None
 
@@ -448,11 +500,8 @@ class BetterControl(Gtk.Window):
         """Save tab state to cache"""
         try:
             cache_file = self.get_cache_file(tab_name)
-            with open(cache_file, 'w') as f:
-                json.dump({
-                    'timestamp': datetime.now().isoformat(),
-                    'state': state
-                }, f)
+            with open(cache_file, "w") as f:
+                json.dump({"timestamp": datetime.now().isoformat(), "state": state}, f)
         except Exception as e:
             self.logging.log(LogLevel.Warning, f"Failed to cache {tab_name} state: {e}")
 
@@ -478,7 +527,16 @@ class BetterControl(Gtk.Window):
         from ui.tabs.usbguard_tab import USBGuardTab
         from ui.tabs.volume_tab import VolumeTab
 
-        real_tab_classes = (BluetoothTab, WiFiTab, DisplayTab, BatteryTab, PowerTab, AutostartTab, USBGuardTab, VolumeTab)
+        real_tab_classes = (
+            BluetoothTab,
+            WiFiTab,
+            DisplayTab,
+            BatteryTab,
+            PowerTab,
+            AutostartTab,
+            USBGuardTab,
+            VolumeTab,
+        )
 
         if isinstance(current_widget, real_tab_classes):
             return
@@ -492,35 +550,42 @@ class BetterControl(Gtk.Window):
                 # Try loading from cache first
                 cached_state = self.load_from_cache(tab_name)
                 tab_instance = tab_class(self.logging, self.txt)
-                
-                if cached_state and hasattr(tab_instance, 'load_state'):
+
+                if cached_state and hasattr(tab_instance, "load_state"):
                     try:
                         tab_instance.load_state(cached_state)
                     except Exception as e:
-                        self.logging.log(LogLevel.Warning, f"Failed to load {tab_name} from cache: {e}")
-                
+                        self.logging.log(
+                            LogLevel.Warning,
+                            f"Failed to load {tab_name} from cache: {e}",
+                        )
+
                 tab_instance.show_all()
                 self.notebook.remove_page(page_num)
                 new_page_num = self.notebook.insert_page(
                     tab_instance,
                     self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
-                    page_num
+                    page_num,
                 )
                 self.tabs[tab_name] = tab_instance
                 self.tab_pages[tab_name] = new_page_num
                 # Save to cache if tab supports it
-                if hasattr(tab_instance, 'get_state'):
+                if hasattr(tab_instance, "get_state"):
                     try:
                         self.save_to_cache(tab_name, tab_instance.get_state())
                     except Exception as e:
-                        self.logging.log(LogLevel.Warning, f"Failed to cache {tab_name} state: {e}")
-                
+                        self.logging.log(
+                            LogLevel.Warning, f"Failed to cache {tab_name} state: {e}"
+                        )
+
                 self.logging.log(LogLevel.Info, f"Lazily created tab: {tab_name}")
                 self.show_all()
                 # Activate the newly created tab immediately
                 self.notebook.set_current_page(new_page_num)
             except Exception as e:
-                self.logging.log(LogLevel.Error, f"Failed to lazily create tab {tab_name}: {e}")
+                self.logging.log(
+                    LogLevel.Error, f"Failed to lazily create tab {tab_name}: {e}"
+                )
             return False  # Only run once
 
         GLib.idle_add(replace_placeholder)
@@ -564,11 +629,10 @@ class BetterControl(Gtk.Window):
         if should_show:
             # Add tab to notebook with proper label
             page_num = self.notebook.append_page(
-                tab,
-                self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name))
+                tab, self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name))
             )
             self.tab_pages[tab_name] = page_num
-            
+
             # Apply consistent padding to tab content
             content = self.notebook.get_nth_page(page_num)
             if content:
@@ -585,7 +649,9 @@ class BetterControl(Gtk.Window):
         try:
             self.logging.log(LogLevel.Info, "Creating fallback tab")
             # Create a simple label
-            label = Gtk.Label(label="Failed to load tabs. Please restart the application.")
+            label = Gtk.Label(
+                label="Failed to load tabs. Please restart the application."
+            )
             label.set_margin_top(20)
             label.set_margin_bottom(20)
             label.set_margin_start(20)
@@ -603,7 +669,9 @@ class BetterControl(Gtk.Window):
         try:
             # Handle minimal mode differently for faster loading
             if self.minimal_mode:
-                self.logging.log(LogLevel.Info, "Minimal mode: Finalizing UI with single tab")
+                self.logging.log(
+                    LogLevel.Info, "Minimal mode: Finalizing UI with single tab"
+                )
 
                 # In minimal mode, we only need to set the active tab
                 active_tab = None
@@ -626,7 +694,19 @@ class BetterControl(Gtk.Window):
                 self.logging.log(LogLevel.Info, "All tabs created, finalizing UI")
 
                 # Ensure all tabs are present in the tab_order setting
-                tab_order = self.settings.get("tab_order", ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"])
+                tab_order = self.settings.get(
+                    "tab_order",
+                    [
+                        "Volume",
+                        "Wi-Fi",
+                        "Bluetooth",
+                        "Battery",
+                        "Display",
+                        "Power",
+                        "Autostart",
+                        "USBGuard",
+                    ],
+                )
 
                 # Make sure all created tabs are in the tab_order
                 for tab_name in self.tabs.keys():
@@ -658,24 +738,31 @@ class BetterControl(Gtk.Window):
                 self.show_all()
 
                 # Log tab page numbers for debugging
-                self.logging.log(
-                    LogLevel.Debug, f"Tab pages: {self.tab_pages}"
-                )
+                self.logging.log(LogLevel.Debug, f"Tab pages: {self.tab_pages}")
 
                 # Initialize the active tab
                 active_tab = None
 
             # Set active tab based on command line arguments
-            if (self.arg_parser.find_arg(("-V", "--volume")) or self.arg_parser.find_arg(("-v", ""))) and "Volume" in self.tab_pages:
+            if (
+                self.arg_parser.find_arg(("-V", "--volume"))
+                or self.arg_parser.find_arg(("-v", ""))
+            ) and "Volume" in self.tab_pages:
                 page_num = self.tab_pages["Volume"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to Volume (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to Volume (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "Volume"
                 if self.minimal_mode:
                     self.set_title(f"Better Control - Volume")
-            elif self.arg_parser.find_arg(("-w", "--wifi")) and "Wi-Fi" in self.tab_pages:
+            elif (
+                self.arg_parser.find_arg(("-w", "--wifi")) and "Wi-Fi" in self.tab_pages
+            ):
                 page_num = self.tab_pages["Wi-Fi"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to Wi-Fi (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to Wi-Fi (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "Wi-Fi"
                 if self.minimal_mode:
@@ -685,66 +772,102 @@ class BetterControl(Gtk.Window):
                 and "Autostart" in self.tab_pages
             ):
                 page_num = self.tab_pages["Autostart"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to Autostart (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to Autostart (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "Autostart"
                 if self.minimal_mode:
-                    translated_tab_name = self.tab_name_mapping.get("Autostart", "Autostart") if hasattr(self, 'tab_name_mapping') else "Autostart"
+                    translated_tab_name = (
+                        self.tab_name_mapping.get("Autostart", "Autostart")
+                        if hasattr(self, "tab_name_mapping")
+                        else "Autostart"
+                    )
                     self.set_title(f"Better Control - {translated_tab_name}")
             elif (
                 self.arg_parser.find_arg(("-b", "--bluetooth"))
                 and "Bluetooth" in self.tab_pages
             ):
                 page_num = self.tab_pages["Bluetooth"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to Bluetooth (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to Bluetooth (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "Bluetooth"
                 if self.minimal_mode:
-                    translated_tab_name = self.tab_name_mapping.get("Bluetooth", "Bluetooth") if hasattr(self, 'tab_name_mapping') else "Bluetooth"
+                    translated_tab_name = (
+                        self.tab_name_mapping.get("Bluetooth", "Bluetooth")
+                        if hasattr(self, "tab_name_mapping")
+                        else "Bluetooth"
+                    )
                     self.set_title(f"Better Control - {translated_tab_name}")
             elif (
                 self.arg_parser.find_arg(("-B", "--battery"))
                 and "Battery" in self.tab_pages
             ):
                 page_num = self.tab_pages["Battery"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to Battery (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to Battery (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "Battery"
                 if self.minimal_mode:
-                    translated_tab_name = self.tab_name_mapping.get("Battery", "Battery") if hasattr(self, 'tab_name_mapping') else "Battery"
+                    translated_tab_name = (
+                        self.tab_name_mapping.get("Battery", "Battery")
+                        if hasattr(self, "tab_name_mapping")
+                        else "Battery"
+                    )
                     self.set_title(f"Better Control - {translated_tab_name}")
             elif (
                 self.arg_parser.find_arg(("-d", "--display"))
                 and "Display" in self.tab_pages
             ):
                 page_num = self.tab_pages["Display"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to Display (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to Display (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "Display"
                 if self.minimal_mode:
-                    translated_tab_name = self.tab_name_mapping.get("Display", "Display") if hasattr(self, 'tab_name_mapping') else "Display"
+                    translated_tab_name = (
+                        self.tab_name_mapping.get("Display", "Display")
+                        if hasattr(self, "tab_name_mapping")
+                        else "Display"
+                    )
                     self.set_title(f"Better Control - {translated_tab_name}")
             elif (
                 self.arg_parser.find_arg(("-u", "--usbguard"))
                 and "USBGuard" in self.tab_pages
             ):
                 page_num = self.tab_pages["USBGuard"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to USBGuard (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to USBGuard (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "USBGuard"
                 if self.minimal_mode:
-                    translated_tab_name = self.tab_name_mapping.get("USBGuard", "USBGuard") if hasattr(self, 'tab_name_mapping') else "USBGuard"
+                    translated_tab_name = (
+                        self.tab_name_mapping.get("USBGuard", "USBGuard")
+                        if hasattr(self, "tab_name_mapping")
+                        else "USBGuard"
+                    )
                     self.set_title(f"Better Control - {translated_tab_name}")
             elif (
                 self.arg_parser.find_arg(("-p", "--power"))
                 and "Power" in self.tab_pages
             ):
                 page_num = self.tab_pages["Power"]
-                self.logging.log(LogLevel.Info, f"Setting active tab to Power (page {page_num})")
+                self.logging.log(
+                    LogLevel.Info, f"Setting active tab to Power (page {page_num})"
+                )
                 self.notebook.set_current_page(page_num)
                 active_tab = "Power"
                 if self.minimal_mode:
-                    translated_tab_name = self.tab_name_mapping.get("Power", "Power") if hasattr(self, 'tab_name_mapping') else "Power"
+                    translated_tab_name = (
+                        self.tab_name_mapping.get("Power", "Power")
+                        if hasattr(self, "tab_name_mapping")
+                        else "Power"
+                    )
                     self.set_title(f"Better Control - {translated_tab_name}")
             else:
                 # Default to first tab instead of using last active tab from settings
@@ -755,8 +878,14 @@ class BetterControl(Gtk.Window):
                         if tab_page == 0:
                             active_tab = tab_name
                             if self.minimal_mode:
-                                translated_tab_name = self.tab_name_mapping.get(tab_name, tab_name) if hasattr(self, 'tab_name_mapping') else tab_name
-                                self.set_title(f"Better Control - {translated_tab_name}")
+                                translated_tab_name = (
+                                    self.tab_name_mapping.get(tab_name, tab_name)
+                                    if hasattr(self, "tab_name_mapping")
+                                    else tab_name
+                                )
+                                self.set_title(
+                                    f"Better Control - {translated_tab_name}"
+                                )
                             break
 
             # Set visibility status on the active tab
@@ -768,12 +897,17 @@ class BetterControl(Gtk.Window):
                 try:
                     self.tabs["Wi-Fi"].load_networks()
                 except Exception as e:
-                    self.logging.log(LogLevel.Error, f"Error loading WiFi networks: {e}")
+                    self.logging.log(
+                        LogLevel.Error, f"Error loading WiFi networks: {e}"
+                    )
 
             # Remove loading tab with proper error handling
             try:
                 # Only try to remove the loading page if it exists (not in minimal mode)
-                if self.loading_page >= 0 and self.loading_page < self.notebook.get_n_pages():
+                if (
+                    self.loading_page >= 0
+                    and self.loading_page < self.notebook.get_n_pages()
+                ):
                     self.notebook.remove_page(self.loading_page)
             except Exception as e:
                 self.logging.log(LogLevel.Error, f"Error removing loading page: {e}")
@@ -788,6 +922,7 @@ class BetterControl(Gtk.Window):
         except Exception as e:
             self.logging.log(LogLevel.Error, f"Critical error finalizing UI: {e}")
             import traceback
+
             traceback.print_exc()
 
         return False  # Required for GLib.idle_add
@@ -804,7 +939,7 @@ class BetterControl(Gtk.Window):
                 "Display": DisplayTab,
                 "Power": PowerTab,
                 "Autostart": AutostartTab,
-                "USBGuard": USBGuardTab
+                "USBGuard": USBGuardTab,
             }
 
             if tab_name in tab_classes:
@@ -817,7 +952,9 @@ class BetterControl(Gtk.Window):
                     self.connect("key-press-event", tab.on_key_press)
                     tab.is_visible = self.minimal_mode
             else:
-                self.logging.log(LogLevel.Warn, f"Cannot unhide non-existent tab: {tab_name}")
+                self.logging.log(
+                    LogLevel.Warn, f"Cannot unhide non-existent tab: {tab_name}"
+                )
                 return
         except Exception as e:
             self.logging.log(LogLevel.Error, f"Failed to create tab {tab_name}: {e}")
@@ -844,7 +981,7 @@ class BetterControl(Gtk.Window):
                 new_page_num = self.notebook.insert_page(
                     tab,
                     self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
-                    page_num
+                    page_num,
                 )
                 self.tab_pages[tab_name] = new_page_num
                 self.tabs[tab_name] = tab
@@ -853,14 +990,14 @@ class BetterControl(Gtk.Window):
                 # Insert as new tab
                 page_num = self.notebook.append_page(
                     tab,
-                    self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name))
+                    self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
                 )
                 self.tab_pages[tab_name] = page_num
                 self.tabs[tab_name] = tab
                 self.notebook.set_current_page(page_num)
 
             # Special handling for WiFi tab to load networks
-            if tab_name == "Wi-Fi" and hasattr(tab, 'load_networks'):
+            if tab_name == "Wi-Fi" and hasattr(tab, "load_networks"):
                 tab.load_networks()
 
             # Special handling for Bluetooth tab to ensure visibility
@@ -879,7 +1016,7 @@ class BetterControl(Gtk.Window):
         """Apply tab visibility settings with optional tab ordering"""
         visibility = self.settings.get("visibility", {})
         tab_order = self.settings.get("tab_order", [])
-        
+
         # Iterate through all tabs
         for tab_name, tab in self.tabs.items():
             # Default to showing tab if no setting exists
@@ -890,7 +1027,7 @@ class BetterControl(Gtk.Window):
                 if self.notebook.get_nth_page(i) == tab:
                     page_num = i
                     break
-            
+
             # Apply visibility
             if should_show and page_num == -1:
                 # Need to add the tab
@@ -900,7 +1037,7 @@ class BetterControl(Gtk.Window):
                     self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
                 )
                 self.tab_pages[tab_name] = page_num
-                
+
                 # If this is a newly unhidden tab, reorder it properly
                 if tab_name == newly_unhidden_tab and tab_name in tab_order:
                     target_pos = tab_order.index(tab_name)
@@ -914,9 +1051,13 @@ class BetterControl(Gtk.Window):
                         # Update page numbers
                         self.tab_pages[tab_name] = visible_count
                         for name, num in self.tab_pages.items():
-                            if name != tab_name and num >= visible_count and num < page_num:
+                            if (
+                                name != tab_name
+                                and num >= visible_count
+                                and num < page_num
+                            ):
                                 self.tab_pages[name] = num + 1
-                
+
                 self.notebook.show_all()  # Ensure notebook updates
             elif not should_show and page_num != -1:
                 # Need to remove the tab
@@ -933,7 +1074,17 @@ class BetterControl(Gtk.Window):
         """Apply tab order settings"""
         # Get current tab order from settings or use default
         tab_order = self.settings.get(
-            "tab_order", ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"]
+            "tab_order",
+            [
+                "Volume",
+                "Wi-Fi",
+                "Bluetooth",
+                "Battery",
+                "Display",
+                "Power",
+                "Autostart",
+                "USBGuard",
+            ],
         )
 
         # Make sure all tabs are present in the tab_order
@@ -975,34 +1126,36 @@ class BetterControl(Gtk.Window):
                 # Add tab to notebook with proper label
                 page_num = self.notebook.append_page(
                     self.tabs[tab_name],
-                    self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name))
+                    self.create_tab_label(tab_name, self.get_icon_for_tab(tab_name)),
                 )
                 self.tab_pages[tab_name] = page_num
-                self.logging.log(LogLevel.Debug, f"Tab {tab_name} added at position {page_num}")
+                self.logging.log(
+                    LogLevel.Debug, f"Tab {tab_name} added at position {page_num}"
+                )
 
         # Show all tabs
         self.notebook.show_all()
 
     def get_icon_for_tab(self, tab_name):
         """Get icon name for a tab"""
-        if hasattr(self, '_icon_cache'):
+        if hasattr(self, "_icon_cache"):
             cached = self._icon_cache.get(tab_name.lower())
             if cached:
                 return cached
-                
+
         icons = {
             "Volume": "audio-volume-high-symbolic",
             "Wi-Fi": "network-wireless-symbolic",
             "Bluetooth": "bluetooth-symbolic",
             "Battery": "battery-good-symbolic",
             "Display": "video-display-symbolic",
-            "Settings": "preferences-system-symbolic", 
+            "Settings": "preferences-system-symbolic",
             "Power": "system-shutdown-symbolic",
             "Autostart": "system-run-symbolic",
             "USBGuard": "drive-removable-media-symbolic",
         }
         icon_name = icons.get(tab_name, "application-x-executable-symbolic")
-        if hasattr(self, '_icon_cache'):
+        if hasattr(self, "_icon_cache"):
             self._icon_cache[tab_name.lower()] = icon_name
         return icon_name
 
@@ -1010,7 +1163,9 @@ class BetterControl(Gtk.Window):
         """Create settings button in the notebook action area"""
         # Don't show settings button in minimal mode
         if self.minimal_mode:
-            self.logging.log(LogLevel.Info, "Settings button not created in minimal mode")
+            self.logging.log(
+                LogLevel.Info, "Settings button not created in minimal mode"
+            )
             return
 
         settings_button = Gtk.Button()
@@ -1021,8 +1176,8 @@ class BetterControl(Gtk.Window):
         self.settings_icon.get_style_context().add_class("rotate-gear")
         settings_button.set_tooltip_text(self.txt.settings_title)
 
-        # Connect the clicked signal
-        settings_button.connect("clicked", self.toggle_settings_panel)
+        # Connect the clicked signal with event controller to detect modifiers
+        settings_button.connect("button-press-event", self.on_settings_button_pressed)
 
         # Add to the notebook action area
         self.notebook.set_action_widget(settings_button, Gtk.PackType.END)
@@ -1031,6 +1186,67 @@ class BetterControl(Gtk.Window):
         self.logging.log(
             LogLevel.Info, "Settings button created and attached to notebook"
         )
+
+    def on_settings_button_pressed(self, widget, event):
+        """Handle settings button press to detect Ctrl+Click"""
+        # Check if left mouse button (1) and Ctrl key pressed
+        if event.type == Gdk.EventType.BUTTON_PRESS and event.button == 1:
+            state = event.state
+            ctrl_mask = Gdk.ModifierType.CONTROL_MASK
+            if state & ctrl_mask:
+                self.show_app_info_dialog()
+                return True  # Stop further handling
+
+            # Otherwise, normal click opens settings panel
+            self.toggle_settings_panel(widget)
+            return True
+
+        return False
+
+    def show_app_info_dialog(self):
+        """Show a dialog with app version, name, and info"""
+        dialog = Gtk.Dialog(
+            title="About Better Control",
+            parent=self,
+            flags=Gtk.DialogFlags.MODAL,
+            buttons=(Gtk.STOCK_CLOSE, Gtk.ResponseType.CLOSE),
+        )
+        dialog.set_default_size(400, 200)
+        dialog.set_position(Gtk.WindowPosition.CENTER_ON_PARENT)
+
+        content_area = dialog.get_content_area()
+
+        # Create a box to hold info
+        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
+        box.set_border_width(10)
+
+        # App name label
+        app_name_label = Gtk.Label()
+        app_name_label.set_markup(
+            "<span size='xx-large' weight='bold'>Better Control</span>"
+        )
+        app_name_label.set_justify(Gtk.Justification.CENTER)
+        box.pack_start(app_name_label, False, False, 0)
+
+        # Version label (hardcoded or could be dynamic)
+        version_label = Gtk.Label(label="Version: v6.11")
+        version_label.set_justify(Gtk.Justification.CENTER)
+        box.pack_start(version_label, False, False, 0)
+
+        # Description label
+        desc_label = Gtk.Label(label="A sleek GTK-themed control panel for Linux.")
+        desc_label.set_justify(Gtk.Justification.CENTER)
+        box.pack_start(desc_label, False, False, 0)
+
+        # Add box to content area
+        content_area.add(box)
+
+        dialog.show_all()
+
+        # Run dialog and wait for response
+        response = dialog.run()
+        if response == Gtk.ResponseType.CLOSE:
+            dialog.destroy()
 
     def toggle_settings_panel(self, widget):
         self.logging.log(
@@ -1055,6 +1271,7 @@ class BetterControl(Gtk.Window):
                 "tab-visibility-changed", self.on_tab_visibility_changed
             )
             settings_tab.connect("tab-order-changed", self.on_tab_order_changed)
+            settings_tab.connect("vertical-tabs-changed", self.on_vertical_tabs_changed)
             # Add the settings content to the dialog's content area
             content_area = dialog.get_content_area()
             content_area.add(settings_tab)
@@ -1118,6 +1335,15 @@ class BetterControl(Gtk.Window):
         save_settings(self.settings, self.logging)
         self.apply_tab_order()
 
+    def on_vertical_tabs_changed(self, widget, active):
+        """Handle vertical tabs toggled signal from settings tab"""
+        self.settings["vertical_tabs"] = active
+        save_settings(self.settings, self.logging)
+        if active:
+            self.notebook.set_tab_pos(Gtk.PositionType.LEFT)
+        else:
+            self.notebook.set_tab_pos(Gtk.PositionType.TOP)
+
     def create_tab_label(self, text: str, icon_name: str) -> Gtk.Box:
         """Create a tab label with icon and text
 
@@ -1132,14 +1358,17 @@ class BetterControl(Gtk.Window):
         icon = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU)
 
         # Use the translated tab name if available
-        translated_text = self.tab_name_mapping.get(text, text) if hasattr(self, 'tab_name_mapping') else text
+        translated_text = (
+            self.tab_name_mapping.get(text, text)
+            if hasattr(self, "tab_name_mapping")
+            else text
+        )
         label = Gtk.Label(label=translated_text)
 
         box.pack_start(icon, False, False, 0)
         box.pack_start(label, False, False, 0)
         box.show_all()
         return box
-
 
     def on_tab_switched(self, notebook, page, page_num):
         """Handle tab switching"""
@@ -1165,13 +1394,17 @@ class BetterControl(Gtk.Window):
             is_visible = self.tab_pages.get(tab_name) == page_num
 
             # If tab has tab_visible property (WiFi tab), update it
-            if hasattr(tab, 'tab_visible'):
+            if hasattr(tab, "tab_visible"):
                 tab.tab_visible = is_visible
 
             # Update window title in minimal mode
             if is_visible and self.minimal_mode:
                 # Use translated tab name in window title
-                translated_tab_name = self.tab_name_mapping.get(tab_name, tab_name) if hasattr(self, 'tab_name_mapping') else tab_name
+                translated_tab_name = (
+                    self.tab_name_mapping.get(tab_name, tab_name)
+                    if hasattr(self, "tab_name_mapping")
+                    else tab_name
+                )
                 self.set_title(f"Better Control - {translated_tab_name}")
 
     def on_notebook_key_press(self, widget, event):
@@ -1193,6 +1426,7 @@ class BetterControl(Gtk.Window):
         if "Power" in self.tabs:
             power_tab = self.tabs["Power"]
             from ui.tabs.power_tab import PowerTab
+
             if isinstance(power_tab, PowerTab):
                 # Always let Power tab handle keys first, regardless of which tab is active
                 if power_tab.on_key_press(widget, event):
@@ -1205,9 +1439,15 @@ class BetterControl(Gtk.Window):
             if current_page >= 0:
                 # Get the widget at the current page
                 child = self.notebook.get_nth_page(current_page)
-                if child and hasattr(child, 'on_key_press') and child != self.tabs.get("Power"):
+                if (
+                    child
+                    and hasattr(child, "on_key_press")
+                    and child != self.tabs.get("Power")
+                ):
                     # Let the tab handle the key press first
-                    self.logging.log(LogLevel.Debug, f"Forwarding key press to tab in minimal mode")
+                    self.logging.log(
+                        LogLevel.Debug, f"Forwarding key press to tab in minimal mode"
+                    )
                     # If the tab handles it, don't process further
                     if child.on_key_press(widget, event):
                         return True
@@ -1215,28 +1455,40 @@ class BetterControl(Gtk.Window):
         if keyval in (65289, 65056):  # Tab and Shift+Tab
             return True  # Stop propagation
         # on shift + s show settings dialog
-        if keyval in (115, 83) and state & Gdk.ModifierType.SHIFT_MASK and not self.minimal_mode:
+        if (
+            keyval in (115, 83)
+            and state & Gdk.ModifierType.SHIFT_MASK
+            and not self.minimal_mode
+        ):
             # show settings dialog
             self.toggle_settings_panel(None)
             return True
         #  ctrl + q or q will quit the application
-        if keyval in (113, 81) or  (keyval == 113 and state & Gdk.ModifierType.CONTROL_MASK):
+        if keyval in (113, 81) or (
+            keyval == 113 and state & Gdk.ModifierType.CONTROL_MASK
+        ):
             self.logging.log(LogLevel.Info, "Application quitted")
             Gtk.main_quit()
         return False  # Let other handlers process the event
 
     def on_destroy(self, window):
         """Thread-safe window destruction with initialization check"""
-        if self._is_destroyed or not hasattr(self, '_initialized') or not self._initialized:
+        if (
+            self._is_destroyed
+            or not hasattr(self, "_initialized")
+            or not self._initialized
+        ):
             return
-            
+
         with self._destroy_lock:
             self._is_destroyed = True
             self.logging.log(LogLevel.Info, "Application shutting down")
 
             # Phase 1: Stop background operations
             try:
-                if hasattr(self, '_tab_creation_lock') and hasattr(self, 'tabs_thread_running'):
+                if hasattr(self, "_tab_creation_lock") and hasattr(
+                    self, "tabs_thread_running"
+                ):
                     with self._tab_creation_lock:
                         self.tabs_thread_running = False
             except:
@@ -1263,7 +1515,16 @@ class BetterControl(Gtk.Window):
         if "tab_order" in self.settings:
             tab_order = self.settings["tab_order"]
             # Make sure all known tabs are included
-            all_tabs = ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"]
+            all_tabs = [
+                "Volume",
+                "Wi-Fi",
+                "Bluetooth",
+                "Battery",
+                "Display",
+                "Power",
+                "Autostart",
+                "USBGuard",
+            ]
             for tab_name in all_tabs:
                 if tab_name not in tab_order:
                     # If we're adding USBGuard for the first time, put it at the end
@@ -1277,20 +1538,30 @@ class BetterControl(Gtk.Window):
         latest_settings = load_settings(self.logging)
         if "language" in latest_settings:
             # Update our in-memory settings with the latest language setting from disk
-            self.logging.log(LogLevel.Info, f"Using latest language setting from disk: {latest_settings['language']}")
+            self.logging.log(
+                LogLevel.Info,
+                f"Using latest language setting from disk: {latest_settings['language']}",
+            )
             self.settings["language"] = latest_settings["language"]
         elif "language" in self.settings:
-            self.logging.log(LogLevel.Info, f"Using language setting from memory: {self.settings['language']}")
+            self.logging.log(
+                LogLevel.Info,
+                f"Using language setting from memory: {self.settings['language']}",
+            )
         else:
-            self.logging.log(LogLevel.Warn, "No language setting found in memory or on disk")
+            self.logging.log(
+                LogLevel.Warn, "No language setting found in memory or on disk"
+            )
 
         # Signal all tabs to clean up their resources
         for tab_name, tab in self.tabs.items():
-            if hasattr(tab, 'on_destroy'):
+            if hasattr(tab, "on_destroy"):
                 try:
                     tab.on_destroy(None)
                 except Exception as e:
-                    self.logging.log(LogLevel.Error, f"Error destroying {tab_name} tab: {e}")
+                    self.logging.log(
+                        LogLevel.Error, f"Error destroying {tab_name} tab: {e}"
+                    )
 
         # Stop any monitoring threads
         if hasattr(self, "monitor_pulse_events_running"):
@@ -1302,19 +1573,31 @@ class BetterControl(Gtk.Window):
         if not hasattr(self, "logging") or not self.logging:
             self.logging = logging.getLogger("BetterControl")
             handler = logging.StreamHandler(sys.__stdout__)
-            handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s]: %(message)s", "%H:%M:%S"))
+            handler.setFormatter(
+                logging.Formatter(
+                    "%(asctime)s [%(levelname)s]: %(message)s", "%H:%M:%S"
+                )
+            )
             self.logging.addHandler(handler)
             self.logging.setLevel(logging.Info)
 
         # Log the final settings before saving
-        self.logging.log(LogLevel.Info, f"Final settings keys before saving: {list(self.settings.keys())}")
+        self.logging.log(
+            LogLevel.Info,
+            f"Final settings keys before saving: {list(self.settings.keys())}",
+        )
         if "language" in self.settings:
-            self.logging.log(LogLevel.Info, f"Final language setting before saving: {self.settings['language']}")
+            self.logging.log(
+                LogLevel.Info,
+                f"Final language setting before saving: {self.settings['language']}",
+            )
 
         # Save settings in a separate thread to avoid blocking
         try:
             # Use a direct call to save_settings instead of a thread to ensure it completes
-            self.logging.log(LogLevel.Info, "Saving settings directly to ensure completion")
+            self.logging.log(
+                LogLevel.Info, "Saving settings directly to ensure completion"
+            )
             save_settings(self.settings, self.logging)
         except Exception as e:
             self.logging.log(LogLevel.Error, f"Error saving settings: {e}")
@@ -1327,8 +1610,8 @@ class BetterControl(Gtk.Window):
 
         # Use try/except to avoid errors during shutdown
         try:
-            sys.stdout = open('/dev/null', 'w')
-            sys.stderr = open('/dev/null', 'w')
+            sys.stdout = open("/dev/null", "w")
+            sys.stderr = open("/dev/null", "w")
         except Exception:
             pass
 

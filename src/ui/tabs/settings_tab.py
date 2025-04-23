@@ -13,9 +13,22 @@ from utils.settings import load_settings, save_settings
 
 class SettingsTab(Gtk.Box):
     """Tab for application settings"""
+
     __gsignals__ = {
-        'tab-visibility-changed': (GObject.SignalFlags.RUN_LAST, None, (str, bool,)),
-        'tab-order-changed': (GObject.SignalFlags.RUN_LAST, None, (GObject.TYPE_PYOBJECT,)),
+        "tab-visibility-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (
+                str,
+                bool,
+            ),
+        ),
+        "tab-order-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (GObject.TYPE_PYOBJECT,),
+        ),
+        "vertical-tabs-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
     }
 
     def __init__(self, logging: Logger, txt: English | Spanish | Portuguese | French):
@@ -59,7 +72,9 @@ class SettingsTab(Gtk.Box):
         header_box.pack_start(icon_event_box, False, False, 0)
 
         settings_label = Gtk.Label(label=self.txt.settings_title)
-        settings_label.set_markup(f"<span size='x-large' weight='bold'>{self.txt.settings_title}</span>")
+        settings_label.set_markup(
+            f"<span size='x-large' weight='bold'>{self.txt.settings_title}</span>"
+        )
         header_box.pack_start(settings_label, False, False, 0)
 
         self.pack_start(header_box, False, False, 0)
@@ -113,11 +128,22 @@ class SettingsTab(Gtk.Box):
         settings_frame.add(self.tab_section)
 
         section_label = Gtk.Label(label=self.txt.settings_tab_settings)
-        section_label.set_markup(f"<span weight='bold'>{self.txt.settings_tab_settings}</span>")
+        section_label.set_markup(
+            f"<span weight='bold'>{self.txt.settings_tab_settings}</span>"
+        )
         section_label.set_halign(Gtk.Align.START)
         self.tab_section.pack_start(section_label, False, False, 0)
 
-        tabs = ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"]
+        tabs = [
+            "Volume",
+            "Wi-Fi",
+            "Bluetooth",
+            "Battery",
+            "Display",
+            "Power",
+            "Autostart",
+            "USBGuard",
+        ]
         self.tab_switches = {}
         self.tab_rows = {}
 
@@ -131,13 +157,17 @@ class SettingsTab(Gtk.Box):
             button_box.set_valign(Gtk.Align.CENTER)
 
             up_button = Gtk.Button()
-            up_button.set_image(Gtk.Image.new_from_icon_name("go-up-symbolic", Gtk.IconSize.BUTTON))
+            up_button.set_image(
+                Gtk.Image.new_from_icon_name("go-up-symbolic", Gtk.IconSize.BUTTON)
+            )
             up_button.set_relief(Gtk.ReliefStyle.NONE)
             up_button.connect("clicked", self.on_move_up_clicked, tab_name)
             button_box.pack_start(up_button, False, False, 0)
 
             down_button = Gtk.Button()
-            down_button.set_image(Gtk.Image.new_from_icon_name("go-down-symbolic", Gtk.IconSize.BUTTON))
+            down_button.set_image(
+                Gtk.Image.new_from_icon_name("go-down-symbolic", Gtk.IconSize.BUTTON)
+            )
             down_button.set_relief(Gtk.ReliefStyle.NONE)
             down_button.connect("clicked", self.on_move_down_clicked, tab_name)
             button_box.pack_start(down_button, False, False, 0)
@@ -170,7 +200,45 @@ class SettingsTab(Gtk.Box):
 
         self.update_ui_order()
 
-        tab_icon = Gtk.Image.new_from_icon_name("preferences-system-symbolic", Gtk.IconSize.MENU)
+        # Add vertical tabs toggle
+        vertical_tabs_row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
+        vertical_tabs_row.set_hexpand(True)
+        vertical_tabs_row.set_margin_top(10)
+        vertical_tabs_row.set_margin_bottom(10)
+
+        vertical_tabs_label = Gtk.Label(
+            label=(
+                self.txt.settings_vertical_tabs_label
+                if hasattr(self.txt, "settings_vertical_tabs_label")
+                else "Enable Vertical Tabs"
+            )
+        )
+        vertical_tabs_label.set_halign(Gtk.Align.START)
+        vertical_tabs_row.pack_start(vertical_tabs_label, True, True, 0)
+
+        self.vertical_tabs_switch = Gtk.Switch()
+        vertical_tabs_enabled = self.settings.get("vertical_tabs", False)
+        self.vertical_tabs_switch.set_active(vertical_tabs_enabled)
+        self.vertical_tabs_switch.set_size_request(40, 20)
+        self.vertical_tabs_switch.set_valign(Gtk.Align.CENTER)
+        self.vertical_tabs_switch.connect(
+            "notify::active", self.on_vertical_tabs_toggled
+        )
+
+        vertical_tabs_switch_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=0
+        )
+        vertical_tabs_switch_box.set_size_request(50, 24)
+        vertical_tabs_switch_box.set_valign(Gtk.Align.CENTER)
+        vertical_tabs_switch_box.pack_start(self.vertical_tabs_switch, True, False, 0)
+
+        vertical_tabs_row.pack_end(vertical_tabs_switch_box, False, False, 0)
+
+        self.tab_section.pack_start(vertical_tabs_row, False, False, 0)
+
+        tab_icon = Gtk.Image.new_from_icon_name(
+            "preferences-system-symbolic", Gtk.IconSize.MENU
+        )
         tab_text = Gtk.Label(label="Tab Settings")
         tab_label_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         tab_label_box.pack_start(tab_icon, False, False, 0)
@@ -209,7 +277,9 @@ class SettingsTab(Gtk.Box):
 
         lang_box_outer.pack_start(lang_box, False, False, 0)
 
-        lang_icon = Gtk.Image.new_from_icon_name("preferences-desktop-locale-symbolic", Gtk.IconSize.MENU)
+        lang_icon = Gtk.Image.new_from_icon_name(
+            "preferences-desktop-locale-symbolic", Gtk.IconSize.MENU
+        )
         lang_text = Gtk.Label(label="Language")
         lang_label_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         lang_label_box.pack_start(lang_icon, False, False, 0)
@@ -218,8 +288,29 @@ class SettingsTab(Gtk.Box):
         self.notebook.append_page(lang_box_outer, lang_label_box)
 
     def update_ui_order(self):
-        tab_order = self.settings.get("tab_order", ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"])
-        all_tabs = ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"]
+        tab_order = self.settings.get(
+            "tab_order",
+            [
+                "Volume",
+                "Wi-Fi",
+                "Bluetooth",
+                "Battery",
+                "Display",
+                "Power",
+                "Autostart",
+                "USBGuard",
+            ],
+        )
+        all_tabs = [
+            "Volume",
+            "Wi-Fi",
+            "Bluetooth",
+            "Battery",
+            "Display",
+            "Power",
+            "Autostart",
+            "USBGuard",
+        ]
         for tab in all_tabs:
             if tab not in tab_order:
                 if tab == "Autostart":
@@ -255,22 +346,59 @@ class SettingsTab(Gtk.Box):
         save_settings(self.settings, self.logging)
         self.emit("tab-visibility-changed", tab_name, active)
 
+    def on_vertical_tabs_toggled(self, switch, gparam):
+        active = switch.get_active()
+        self.settings["vertical_tabs"] = active
+        save_settings(self.settings, self.logging)
+        # Emit a custom signal if needed to notify main window
+        self.emit("vertical-tabs-changed", active)
+
     def on_move_up_clicked(self, button, tab_name):
-        tab_order = self.settings.get("tab_order", ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"])
+        tab_order = self.settings.get(
+            "tab_order",
+            [
+                "Volume",
+                "Wi-Fi",
+                "Bluetooth",
+                "Battery",
+                "Display",
+                "Power",
+                "Autostart",
+                "USBGuard",
+            ],
+        )
         current_index = tab_order.index(tab_name)
         if current_index > 0:
-            tab_order[current_index], tab_order[current_index - 1] = tab_order[current_index - 1], tab_order[current_index]
+            tab_order[current_index], tab_order[current_index - 1] = (
+                tab_order[current_index - 1],
+                tab_order[current_index],
+            )
             self.settings["tab_order"] = tab_order
             save_settings(self.settings, self.logging)
             self.update_ui_order()
             self.emit("tab-order-changed", tab_order)
 
     def on_move_down_clicked(self, button, tab_name):
-        tab_order = self.settings.get("tab_order", ["Volume", "Wi-Fi", "Bluetooth", "Battery", "Display", "Power", "Autostart", "USBGuard"])
+        tab_order = self.settings.get(
+            "tab_order",
+            [
+                "Volume",
+                "Wi-Fi",
+                "Bluetooth",
+                "Battery",
+                "Display",
+                "Power",
+                "Autostart",
+                "USBGuard",
+            ],
+        )
         current_index = tab_order.index(tab_name)
         if current_index >= len(tab_order) - 1:
             return
-        tab_order[current_index], tab_order[current_index + 1] = tab_order[current_index + 1], tab_order[current_index]
+        tab_order[current_index], tab_order[current_index + 1] = (
+            tab_order[current_index + 1],
+            tab_order[current_index],
+        )
         self.settings["tab_order"] = tab_order
         save_settings(self.settings, self.logging)
         self.update_ui_order()
@@ -282,7 +410,9 @@ class SettingsTab(Gtk.Box):
         self.settings["window_size"]["settings_width"] = width
         self.settings["window_size"]["settings_height"] = height
         save_settings(self.settings, self.logging)
-        self.logging.log(LogLevel.Info, f"Saved reference window size: {width}x{height}")
+        self.logging.log(
+            LogLevel.Info, f"Saved reference window size: {width}x{height}"
+        )
 
     def on_language_changed(self, combo):
         lang = combo.get_active_id()
@@ -296,27 +426,35 @@ class SettingsTab(Gtk.Box):
 
         saved_settings = load_settings(self.logging)
         if saved_settings.get("language") == lang:
-            self.logging.log(LogLevel.Info, f"Language setting verified: {saved_settings.get('language')}")
+            self.logging.log(
+                LogLevel.Info,
+                f"Language setting verified: {saved_settings.get('language')}",
+            )
         else:
-            self.logging.log(LogLevel.Error, f"Language setting not saved correctly. Expected: {lang}, Got: {saved_settings.get('language')}")
-            self.logging.log(LogLevel.Info, "Forcing language setting in configuration file")
+            self.logging.log(
+                LogLevel.Error,
+                f"Language setting not saved correctly. Expected: {lang}, Got: {saved_settings.get('language')}",
+            )
+            self.logging.log(
+                LogLevel.Info, "Forcing language setting in configuration file"
+            )
             saved_settings["language"] = lang
             save_settings(saved_settings, self.logging)
 
         parent_window = self.get_toplevel()
-        if hasattr(parent_window, 'settings'):
+        if hasattr(parent_window, "settings"):
             parent_window.settings["language"] = lang
-            self.logging.log(LogLevel.Info, f"Updated main window's language setting to {lang}")
+            self.logging.log(
+                LogLevel.Info, f"Updated main window's language setting to {lang}"
+            )
 
         dialog = Gtk.MessageDialog(
             transient_for=self.get_toplevel(),
             flags=0,
             message_type=Gtk.MessageType.INFO,
             buttons=Gtk.ButtonsType.OK,
-            text=self.txt.settings_language_changed
+            text=self.txt.settings_language_changed,
         )
-        dialog.format_secondary_text(
-            self.txt.settings_language_changed_restart
-        )
+        dialog.format_secondary_text(self.txt.settings_language_changed_restart)
         dialog.run()
         dialog.destroy()
