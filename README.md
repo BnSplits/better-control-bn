@@ -1,6 +1,6 @@
 # ⚙️ Better Control
 
-<img src="https://github.com/user-attachments/assets/21a9f732-28a0-4da4-b0ff-9f9093cb2b3b" width="650">
+<img src="https://github.com/user-attachments/assets/3ae2383d-971b-4280-bd64-6c6c18dd05de" width="650">
 
 ### _A sleek GTK-themed control panel for Linux_ 🐧
 
