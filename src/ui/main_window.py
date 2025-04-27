@@ -26,7 +26,7 @@ from ui.tabs.settings_tab import SettingsTab
 from ui.tabs.usbguard_tab import USBGuardTab
 from utils.settings import load_settings, save_settings
 from utils.logger import LogLevel, Logger
-from ui.css.styles import load_animations_css  # animate_widget_show not used
+from ui.css.styles import load_animations_css
 from utils.translations import Translation, get_translations
 from tools.globals import check_hardware_support
 
@@ -1216,11 +1216,9 @@ class BetterControl(Gtk.Window):
 
         content_area = dialog.get_content_area()
 
-        # Create a box to hold info
         box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         box.set_border_width(10)
 
-        # App name label
         app_name_label = Gtk.Label()
         app_name_label.set_markup(
             "<span size='xx-large' weight='bold'>Better Control</span>"
@@ -1228,17 +1226,14 @@ class BetterControl(Gtk.Window):
         app_name_label.set_justify(Gtk.Justification.CENTER)
         box.pack_start(app_name_label, False, False, 0)
 
-        # Version label (hardcoded or could be dynamic)
-        version_label = Gtk.Label(label="Version: v6.11")
+        version_label = Gtk.Label(label="Version: v6.11.1")
         version_label.set_justify(Gtk.Justification.CENTER)
         box.pack_start(version_label, False, False, 0)
 
-        # Description label
         desc_label = Gtk.Label(label="A sleek GTK-themed control panel for Linux.")
         desc_label.set_justify(Gtk.Justification.CENTER)
         box.pack_start(desc_label, False, False, 0)
 
-        # Add box to content area
         content_area.add(box)
 
         dialog.show_all()
@@ -1272,6 +1267,10 @@ class BetterControl(Gtk.Window):
             )
             settings_tab.connect("tab-order-changed", self.on_tab_order_changed)
             settings_tab.connect("vertical-tabs-changed", self.on_vertical_tabs_changed)
+            settings_tab.connect(
+                "vertical-tabs-icon-only-changed",
+                self.on_vertical_tabs_icon_only_changed,
+            )
             # Add the settings content to the dialog's content area
             content_area = dialog.get_content_area()
             content_area.add(settings_tab)
@@ -1344,29 +1343,58 @@ class BetterControl(Gtk.Window):
         else:
             self.notebook.set_tab_pos(Gtk.PositionType.TOP)
 
+        for tab_name, tab in self.tabs.items():
+            page_num = self.tab_pages.get(tab_name)
+            if page_num is not None:
+                tab_label = self.notebook.get_tab_label(tab)
+                if tab_label:
+                    new_label = self.create_tab_label(
+                        tab_name, self.get_icon_for_tab(tab_name)
+                    )
+                    self.notebook.set_tab_label(tab, new_label)
+
+    def on_vertical_tabs_icon_only_changed(self, widget, active):
+        """Handle vertical tabs icon-only toggled signal from settings tab"""
+        self.settings["vertical_tabs_icon_only"] = active
+        save_settings(self.settings, self.logging)
+
+        for tab_name, tab in self.tabs.items():
+            page_num = self.tab_pages.get(tab_name)
+            if page_num is not None:
+                tab_label = self.notebook.get_tab_label(tab)
+                if tab_label:
+                    new_label = self.create_tab_label(
+                        tab_name, self.get_icon_for_tab(tab_name)
+                    )
+                    self.notebook.set_tab_label(tab, new_label)
+
     def create_tab_label(self, text: str, icon_name: str) -> Gtk.Box:
-        """Create a tab label with icon and text
+        """Create a tab label with icon and optionally text based on vertical_tabs and vertical_tabs_icon_only settings
 
         Args:
             text (str): Tab label text (internal name)
             icon_name (str): Icon name
 
         Returns:
-            Gtk.Box: Box containing icon and label
+            Gtk.Box: Box containing icon and optionally label
         """
         box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=5)
         icon = Gtk.Image.new_from_icon_name(icon_name, Gtk.IconSize.MENU)
 
-        # Use the translated tab name if available
-        translated_text = (
-            self.tab_name_mapping.get(text, text)
-            if hasattr(self, "tab_name_mapping")
-            else text
-        )
-        label = Gtk.Label(label=translated_text)
-
         box.pack_start(icon, False, False, 0)
-        box.pack_start(label, False, False, 0)
+
+        if not self.settings.get("vertical_tabs", False) or not self.settings.get(
+            "vertical_tabs_icon_only", False
+        ):
+            # Use the translated tab name if available
+            translated_text = (
+                self.tab_name_mapping.get(text, text)
+                if hasattr(self, "tab_name_mapping")
+                else text
+            )
+            label = Gtk.Label(label=translated_text)
+            box.pack_start(label, False, False, 0)
+
         box.show_all()
         return box
 

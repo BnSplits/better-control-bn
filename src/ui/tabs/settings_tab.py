@@ -29,6 +29,11 @@ class SettingsTab(Gtk.Box):
             (GObject.TYPE_PYOBJECT,),
         ),
         "vertical-tabs-changed": (GObject.SignalFlags.RUN_LAST, None, (bool,)),
+        "vertical-tabs-icon-only-changed": (
+            GObject.SignalFlags.RUN_LAST,
+            None,
+            (bool,),
+        ),
     }
 
     def __init__(self, logging: Logger, txt: English | Spanish | Portuguese | French):
@@ -236,6 +241,48 @@ class SettingsTab(Gtk.Box):
 
         self.tab_section.pack_start(vertical_tabs_row, False, False, 0)
 
+        # Add vertical tabs icon-only toggle
+        vertical_tabs_icon_only_row = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=5
+        )
+        vertical_tabs_icon_only_row.set_hexpand(True)
+        vertical_tabs_icon_only_row.set_margin_top(10)
+        vertical_tabs_icon_only_row.set_margin_bottom(10)
+
+        vertical_tabs_icon_only_label = Gtk.Label(
+            label="Show only icons in vertical tabs"
+        )
+        vertical_tabs_icon_only_label.set_halign(Gtk.Align.START)
+        vertical_tabs_icon_only_row.pack_start(
+            vertical_tabs_icon_only_label, True, True, 0
+        )
+
+        self.vertical_tabs_icon_only_switch = Gtk.Switch()
+        vertical_tabs_icon_only_enabled = self.settings.get(
+            "vertical_tabs_icon_only", False
+        )
+        self.vertical_tabs_icon_only_switch.set_active(vertical_tabs_icon_only_enabled)
+        self.vertical_tabs_icon_only_switch.set_size_request(40, 20)
+        self.vertical_tabs_icon_only_switch.set_valign(Gtk.Align.CENTER)
+        self.vertical_tabs_icon_only_switch.connect(
+            "notify::active", self.on_vertical_tabs_icon_only_toggled
+        )
+
+        vertical_tabs_icon_only_switch_box = Gtk.Box(
+            orientation=Gtk.Orientation.HORIZONTAL, spacing=0
+        )
+        vertical_tabs_icon_only_switch_box.set_size_request(50, 24)
+        vertical_tabs_icon_only_switch_box.set_valign(Gtk.Align.CENTER)
+        vertical_tabs_icon_only_switch_box.pack_start(
+            self.vertical_tabs_icon_only_switch, True, False, 0
+        )
+
+        vertical_tabs_icon_only_row.pack_end(
+            vertical_tabs_icon_only_switch_box, False, False, 0
+        )
+
+        self.tab_section.pack_start(vertical_tabs_icon_only_row, False, False, 0)
+
         tab_icon = Gtk.Image.new_from_icon_name(
             "preferences-system-symbolic", Gtk.IconSize.MENU
         )
@@ -352,6 +399,12 @@ class SettingsTab(Gtk.Box):
         save_settings(self.settings, self.logging)
         # Emit a custom signal if needed to notify main window
         self.emit("vertical-tabs-changed", active)
+
+    def on_vertical_tabs_icon_only_toggled(self, switch, gparam):
+        active = switch.get_active()
+        self.settings["vertical_tabs_icon_only"] = active
+        save_settings(self.settings, self.logging)
+        self.emit("vertical-tabs-icon-only-changed", active)
 
     def on_move_up_clicked(self, button, tab_name):
         tab_order = self.settings.get(
